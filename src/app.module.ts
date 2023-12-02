@@ -1,20 +1,13 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DATABASEENV } from './environments';
+import { UsersModule } from './users/users.module';
+import { TypeORMConfig } from './config/database/typeorm.config';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      port: 5432,
-      host: DATABASEENV.host,
-      username: DATABASEENV.username,
-      password: DATABASEENV.password,
-      database: DATABASEENV.database,
-      ssl: true,
-      entities: [],
-      synchronize: true,
-    }),
+    TypeOrmModule.forRootAsync({ useFactory: () => TypeORMConfig }),
+    UsersModule,
   ],
   controllers: [],
   providers: [],
