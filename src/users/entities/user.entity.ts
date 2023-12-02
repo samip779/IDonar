@@ -6,7 +6,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { IUser } from '../interfaces/IUser';
-import { BloodGroup } from '../enums';
+import { BloodGroup, Gender } from '../enums';
 
 @Entity({ name: 'users' })
 export class User implements IUser {
@@ -25,11 +25,26 @@ export class User implements IUser {
   @Column({ name: 'password', select: false })
   password: string;
 
+  @Column({ name: 'gender', type: 'enum', enum: Gender })
+  gender: Gender;
+
+  @Column({ name: 'height' })
+  height: number;
+
+  @Column({ name: 'weight' })
+  weight: number;
+
+  @Column({ name: 'phone' })
+  phone: string;
+
   @Column({ name: 'city' })
   city: string;
 
   @Column({ name: 'province' })
   province: string;
+
+  @Column({ name: 'street' })
+  street: string;
 
   @Column({
     name: 'blood_group',
@@ -43,8 +58,8 @@ export class User implements IUser {
   isVerified: boolean;
 
   @CreateDateColumn({ name: 'created_at' })
-  created_at: Date;
+  createdAt: Date;
 
   @UpdateDateColumn({ name: 'updated_at' })
-  updated_at: Date;
+  updatedAt: Date;
 }
