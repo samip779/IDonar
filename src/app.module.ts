@@ -1,24 +1,29 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { DATABASEENV } from './environments';
+import { UsersModule } from './users/users.module';
+import { TypeORMConfig } from './config/database/typeorm.config';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      port: 5432,
-      host: DATABASEENV.host,
-      username: DATABASEENV.username,
-      password: DATABASEENV.password,
-      database: DATABASEENV.database,
-      ssl: true,
-      entities: [],
-      synchronize: true,
-    }),
+    TypeOrmModule.forRootAsync({ useFactory: () => TypeORMConfig }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000,
+        limit: 10,
+      },
+    ]),
+    UsersModule,
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
+
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
+  ],
 })
 export class AppModule {}
