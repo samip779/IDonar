@@ -10,7 +10,7 @@ export const TypeORMConfig: TypeOrmModuleOptions = {
   password: DATABASEENV.password,
   database: DATABASEENV.database,
   ssl: true,
-  entities: [__dirname + '/../**/*.entity.{js,ts}'],
+  entities: [__dirname + '/../../**/*.entity.{js,ts}'],
   synchronize: false,
   logging: MODE === 'dev',
 };

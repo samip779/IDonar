@@ -22,7 +22,7 @@ export class User implements IUser {
   @Column({ name: 'email', unique: true })
   email: string;
 
-  @Column({ name: 'password', select: false })
+  @Column({ name: 'password' })
   password: string;
 
   @Column({ name: 'gender', type: 'enum', enum: Gender })

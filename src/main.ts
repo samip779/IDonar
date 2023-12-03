@@ -24,7 +24,7 @@ async function bootstrap() {
   }
 
   // global validation pipe
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true }));
+  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
 
   // helmet helps secure apps by setting HTTP response headers
   app.use(helmet());

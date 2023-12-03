@@ -1,6 +1,6 @@
 import { IUser } from './IUser';
 
 export abstract class IUsersService {
-  abstract create(): string;
-  // abstract findAll(): Promise<IUser>;
+  abstract create(payload: IUser): Promise<IUser>;
+  abstract findOneByEmail(email: string): Promise<IUser>;
 }

@@ -1,6 +1,7 @@
 import { BloodGroup, Gender } from '../enums';
 
 export interface IUser {
+  id?: string;
   firstname: string;
   lastname: string;
   gender: Gender;
