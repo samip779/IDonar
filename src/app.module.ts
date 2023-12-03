@@ -1,10 +1,10 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { DATABASEENV } from './environments';
 import { UsersModule } from './users/users.module';
 import { TypeORMConfig } from './config/database/typeorm.config';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -16,6 +16,7 @@ import { APP_GUARD } from '@nestjs/core';
       },
     ]),
     UsersModule,
+    AuthModule,
   ],
   controllers: [],
 

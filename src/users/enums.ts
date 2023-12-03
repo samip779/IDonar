@@ -8,3 +8,8 @@ export enum BloodGroup {
   O_POSITIVE = 'O+',
   O_NEGATIVE = 'O-',
 }
+
+export enum Gender {
+  MALE = 'M',
+  FEMALE = 'F',
+}

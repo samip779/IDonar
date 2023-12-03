@@ -1,4 +1,3 @@
-import { DATABASEENV } from 'src/environments';
 import { DataSource } from 'typeorm';
 
 require('dotenv').config();
