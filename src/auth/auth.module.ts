@@ -3,9 +3,10 @@ import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { UsersModule } from 'src/users/users.module';
 import { IAuthService } from './interfaces/IAuthService';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
-  imports: [UsersModule],
+  imports: [UsersModule, JwtModule.register({})],
   providers: [
     {
       provide: IAuthService,

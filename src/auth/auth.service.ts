@@ -11,10 +11,15 @@ import {
   ILoginParam,
   IRegisterParam,
 } from './interfaces/IAuthService';
+import { JwtService } from '@nestjs/jwt';
+import { JWTSECRET } from 'src/environments';
 
 @Injectable()
 export class AuthService implements IAuthService {
-  constructor(private readonly usersService: IUsersService) {}
+  constructor(
+    private readonly usersService: IUsersService,
+    private readonly jwtService: JwtService,
+  ) {}
 
   async register(payload: IRegisterParam): Promise<Object> {
     const { email, password, ...rest } = payload;
@@ -46,6 +51,12 @@ export class AuthService implements IAuthService {
 
     return {
       message: 'user logged in successfully',
+      email: userWithEmail.email,
+      bloodGroup: userWithEmail.bloodGroup,
+      token: await this.jwtService.signAsync(
+        { sub: userWithEmail.id },
+        { expiresIn: '1d', secret: JWTSECRET },
+      ),
     };
   }
 }
