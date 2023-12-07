@@ -4,7 +4,6 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { IUsersService } from 'src/users/interfaces/IUsersService';
-import { CreateUserDto } from './dto/register.dto';
 import * as argon2 from 'argon2';
 import {
   IAuthService,
@@ -13,12 +12,14 @@ import {
 } from './interfaces/IAuthService';
 import { JwtService } from '@nestjs/jwt';
 import { JWTSECRET } from 'src/environments';
+import { EmailService } from 'src/email/email.service';
 
 @Injectable()
 export class AuthService implements IAuthService {
   constructor(
     private readonly usersService: IUsersService,
     private readonly jwtService: JwtService,
+    private readonly emailService: EmailService,
   ) {}
 
   async register(payload: IRegisterParam): Promise<Object> {
@@ -35,6 +36,11 @@ export class AuthService implements IAuthService {
       ...rest,
     });
 
+    this.emailService.welcomeEmail({
+      email,
+      name: user.firstname,
+    });
+
     return {
       message: 'user registered successfully',
     };
@@ -48,6 +54,11 @@ export class AuthService implements IAuthService {
 
     if (!(await argon2.verify(userWithEmail.password, password)))
       throw new BadRequestException({ message: 'email or password is wrong' });
+
+    this.emailService.welcomeEmail({
+      email,
+      name: userWithEmail.firstname,
+    });
 
     return {
       message: 'user logged in successfully',

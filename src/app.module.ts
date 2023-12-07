@@ -5,6 +5,7 @@ import { TypeORMConfig } from './config/database/typeorm.config';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module';
+import { EmailModule } from './email/email.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { AuthModule } from './auth/auth.module';
     ]),
     UsersModule,
     AuthModule,
+    EmailModule,
   ],
   controllers: [],
 
