@@ -5,11 +5,11 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { IUser } from '../interfaces/IUser';
+
 import { BloodGroup, Gender } from '../enums';
 
 @Entity({ name: 'users' })
-export class User implements IUser {
+export class User {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 

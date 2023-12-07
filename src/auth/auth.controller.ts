@@ -2,13 +2,12 @@ import { Body, Controller, HttpCode, HttpStatus, Post } from '@nestjs/common';
 import { CreateUserDto } from './dto/register.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { IAuthService } from './interfaces/IAuthService';
 import { LoginDto } from './dto/login.dto';
 
 @ApiTags('authentication')
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: IAuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
   @Post('register')
   @HttpCode(HttpStatus.CREATED)

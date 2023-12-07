@@ -3,29 +3,29 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { IUsersService } from 'src/users/interfaces/IUsersService';
 import * as argon2 from 'argon2';
-import {
-  IAuthService,
-  ILoginParam,
-  IRegisterParam,
-} from './interfaces/IAuthService';
 import { JwtService } from '@nestjs/jwt';
 import { JWTSECRET } from 'src/environments';
 import { EmailService } from 'src/email/email.service';
+import { UsersService } from 'src/users/users.service';
+import { LoginDto } from './dto/login.dto';
+import { CreateUserDto } from './dto/register.dto';
 
 @Injectable()
-export class AuthService implements IAuthService {
+export class AuthService {
   constructor(
-    private readonly usersService: IUsersService,
+    private readonly usersService: UsersService,
     private readonly jwtService: JwtService,
     private readonly emailService: EmailService,
   ) {}
 
-  async register(payload: IRegisterParam): Promise<Object> {
+  async register(payload: CreateUserDto): Promise<Object> {
     const { email, password, ...rest } = payload;
 
-    const userWithEmail = await this.usersService.findOneByEmail(email);
+    const userWithEmail = await this.usersService.findOneBy(
+      { email },
+      { id: true },
+    );
 
     if (userWithEmail)
       throw new BadRequestException({ message: 'user already exists' });
@@ -46,8 +46,11 @@ export class AuthService implements IAuthService {
     };
   }
 
-  async login({ email, password }: ILoginParam): Promise<Object> {
-    const userWithEmail = await this.usersService.findOneByEmail(email);
+  async login({ email, password }: LoginDto): Promise<Object> {
+    const userWithEmail = await this.usersService.findOneBy(
+      { email },
+      { id: true, password: true, firstname: true, bloodGroup: true },
+    );
 
     if (!userWithEmail)
       throw new NotFoundException({ message: 'user not found' });

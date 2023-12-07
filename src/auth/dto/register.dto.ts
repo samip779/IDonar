@@ -9,9 +9,8 @@ import {
   MinLength,
 } from 'class-validator';
 import { Gender, BloodGroup } from 'src/users/enums';
-import { IRegisterParam } from '../interfaces/IAuthService';
 
-export class CreateUserDto implements IRegisterParam {
+export class CreateUserDto {
   @ApiProperty({ example: 'John' })
   @IsString()
   firstname: string;
