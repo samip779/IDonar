@@ -1,0 +1,51 @@
+<html lang='en'>
+  <head>
+    <meta charset='UTF-8' />
+    <meta name='viewport' content='width=device-width, initial-scale=1.0' />
+    <title>Email Verification</title>
+  </head>
+  <body
+    style='font-family: Arial, sans-serif; background-color: #8b0000; padding: 20px;'
+  >
+
+    <div
+      style='max-width: 600px; margin: 0 auto; background-color: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);'
+    >
+
+      <h2 style='color: #8b0000;'>Verify Your Email Address</h2>
+
+      <p>Dear {{name}},</p>
+
+      <p>Thank you for registering with IDonar, your blood donation app! To
+        ensure the security of your account, we need to verify your email
+        address.</p>
+
+      <p
+        style='background-color: #f0f0f0; padding: 10px; border-radius: 5px; font-weight: bold; color: #8b0000;'
+      >Verification Code: {{code}}</p>
+
+      {{! <p>Follow the instructions below to complete the verification process:</p>
+
+      <ol>
+        <li>Open iDonar app.</li>
+        <li>Click on the "Verify Email" button.</li>
+        <li>Enter the verification code provided above.</li>
+      </ol> }}
+
+      <p>Please note that this code is valid for the next
+        {{expirationTimeInMinutes}}
+        minutes. If you haven't requested this verification, please ignore this
+        email.</p>
+
+      <p>If you experience any issues or did not make this request, please
+        contact our support team at query.idonar@gmail.com for assistance.</p>
+
+      <p>Thank you for choosing iDonar. We look forward to providing you with a
+        secure and seamless experience.</p>
+
+      <p>Best regards,<br />iDonar Team<br />Contact us at idonar@gmail.com</p>
+
+    </div>
+
+  </body>
+</html>

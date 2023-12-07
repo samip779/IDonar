@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import {
   DeepPartial,
+  FindOptions,
   FindOptionsSelect,
   FindOptionsWhere,
   Repository,
@@ -16,12 +17,16 @@ export class UsersService {
 
   async findOneBy(
     where: FindOptionsWhere<User>,
-    select: FindOptionsSelect<User>,
+    select?: FindOptionsSelect<User>,
   ) {
-    return await this.usersRepository.findOne({
-      where,
-      select,
-    });
+    const findOptions: {
+      where: FindOptionsWhere<User>;
+      select?: FindOptionsSelect<User>;
+    } = { where };
+
+    if (select) findOptions.select = select;
+
+    return await this.usersRepository.findOne(findOptions);
   }
 
   async create(payload: DeepPartial<User>): Promise<User> {
@@ -30,5 +35,16 @@ export class UsersService {
     await this.usersRepository.save(user);
 
     return user;
+  }
+
+  async verifyUser(id: string) {
+    const user = await this.usersRepository.findOne({
+      where: { id },
+      select: ['id', 'isVerified'],
+    });
+
+    user.isVerified = true;
+
+    return this.usersRepository.save(user);
   }
 }
