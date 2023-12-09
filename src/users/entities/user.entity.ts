@@ -8,7 +8,7 @@ import {
 } from 'typeorm';
 
 import { BloodGroup, Gender } from '../enums';
-import { OTP } from 'src/otp/entities/otp.entity';
+import { OTP } from '../../otp/entities/otp.entity';
 
 @Entity({ name: 'users' })
 export class User {
