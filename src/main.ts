@@ -17,6 +17,7 @@ async function bootstrap() {
       .setTitle('IDonar')
       .setDescription('IDonar API Specification')
       .setVersion('1.0.0')
+      .addBearerAuth()
       .build();
 
     const document = SwaggerModule.createDocument(app, config);
