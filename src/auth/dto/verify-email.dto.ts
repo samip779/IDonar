@@ -12,3 +12,9 @@ export class VerifyEmailDto {
   @MinLength(6)
   code: string;
 }
+
+export class ResendEmailVerificationOtpDto {
+  @ApiProperty({ example: 'johndoe@gmail.com' })
+  @IsEmail()
+  email: string;
+}
