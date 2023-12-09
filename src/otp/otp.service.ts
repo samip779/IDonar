@@ -43,4 +43,14 @@ export class OtpService {
 
     return true;
   }
+
+  async findLastOtp(userId: string, type: OTPType) {
+    return await this.otpRepository.findOne({
+      where: {
+        userId,
+        type,
+      },
+      order: { createdAt: 'DESC' },
+    });
+  }
 }
