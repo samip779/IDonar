@@ -36,7 +36,7 @@ export class EmailService {
       template: './email-verification',
       context: {
         code: details.otpCode,
-        name: '',
+        name: details.name,
         expirationTimeInMinutes: '10',
       },
     });
