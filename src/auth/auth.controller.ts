@@ -3,7 +3,10 @@ import { CreateUserDto } from './dto/register.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
-import { VerifyEmailDto } from './dto/verify-email.dto';
+import {
+  ResendEmailVerificationOtpDto,
+  VerifyEmailDto,
+} from './dto/verify-email.dto';
 
 @ApiTags('authentication')
 @Controller('auth')
@@ -26,5 +29,11 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   verifyEmail(@Body() verifyEmailDto: VerifyEmailDto) {
     return this.authService.verifyEmail(verifyEmailDto);
+  }
+
+  @Post('resend-email-verification-otp')
+  @HttpCode(HttpStatus.OK)
+  resendOtp(@Body() resendOtpDto: ResendEmailVerificationOtpDto) {
+    return this.authService.resendOtp(resendOtpDto);
   }
 }

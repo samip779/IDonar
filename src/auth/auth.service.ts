@@ -10,7 +10,10 @@ import { EmailService } from 'src/email/email.service';
 import { UsersService } from 'src/users/users.service';
 import { LoginDto } from './dto/login.dto';
 import { CreateUserDto } from './dto/register.dto';
-import { VerifyEmailDto } from './dto/verify-email.dto';
+import {
+  ResendEmailVerificationOtpDto,
+  VerifyEmailDto,
+} from './dto/verify-email.dto';
 import { OtpService } from 'src/otp/otp.service';
 import { OTPType } from 'src/otp/enums';
 
@@ -27,7 +30,7 @@ export class AuthService {
     const { email, password, ...rest } = payload;
 
     const userWithEmail = await this.usersService.findOneBy(
-      { email },
+      { email: email.toLowerCase() },
       { id: true },
     );
 
@@ -40,18 +43,13 @@ export class AuthService {
       ...rest,
     });
 
-    // this.emailService.welcomeEmail({
-    //   email,
-    //   name: user.firstname,
-    // });
-
     const otp = await this.otpService.createOtp(
       user.id,
       OTPType.EMAIL_VERIFICATION,
     );
 
     this.emailService.otpEmail({
-      email,
+      email: email.toLowerCase(),
       name: user.firstname,
       otpCode: otp.code,
       otpType: otp.type,
@@ -64,7 +62,7 @@ export class AuthService {
 
   async login({ email, password }: LoginDto): Promise<Object> {
     const userWithEmail = await this.usersService.findOneBy(
-      { email },
+      { email: email.toLowerCase() },
       {
         id: true,
         password: true,
@@ -87,7 +85,7 @@ export class AuthService {
       );
 
       this.emailService.otpEmail({
-        email,
+        email: email.toLowerCase(),
         name: userWithEmail.firstname,
         otpCode: otp.code,
         otpType: otp.type,
@@ -112,7 +110,7 @@ export class AuthService {
 
   async verifyEmail({ email, code }: VerifyEmailDto) {
     const user = await this.usersService.findOneBy(
-      { email },
+      { email: email.toLowerCase() },
       { id: true, email: true, isVerified: true, bloodGroup: true },
     );
 
@@ -138,5 +136,38 @@ export class AuthService {
         { expiresIn: '1d', secret: JWTSECRET },
       ),
     };
+  }
+
+  async resendOtp({ email }: ResendEmailVerificationOtpDto) {
+    const user = await this.usersService.findOneBy(
+      { email: email.toLowerCase() },
+      { id: true, isVerified: true },
+    );
+
+    if (!user) throw new NotFoundException('user not found');
+    if (user.isVerified) throw new BadRequestException('user already verified');
+
+    const previousOtp = await this.otpService.findLastOtp(
+      user.id,
+      OTPType.EMAIL_VERIFICATION,
+    );
+
+    if (previousOtp) {
+      const waitTime = 1 * 60 * 1000;
+      if (previousOtp.createdAt.getTime() + waitTime < Date.now())
+        throw new BadRequestException('Please request after 1 minute');
+    }
+
+    const otp = await this.otpService.createOtp(
+      user.id,
+      OTPType.EMAIL_VERIFICATION,
+    );
+
+    this.emailService.otpEmail({
+      email: email.toLowerCase(),
+      name: user.firstname,
+      otpCode: otp.code,
+      otpType: otp.type,
+    });
   }
 }
