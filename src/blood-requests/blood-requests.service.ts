@@ -12,7 +12,7 @@ export class BloodRequestsService {
   ) {}
 
   async addBloodRequest(bloodRequestDto: BloodRequestDto) {
-    if (new Date(bloodRequestDto.donationDate) > new Date())
+    if (new Date(bloodRequestDto.donationDate) < new Date())
       throw new HttpException(
         'donation date should not be in past',
         HttpStatus.BAD_REQUEST,
