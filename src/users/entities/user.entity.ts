@@ -6,9 +6,8 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-
-import { BloodGroup, Gender } from '../enums';
 import { OTP } from '../../otp/entities/otp.entity';
+import { BloodGroup, Gender } from '../../common/enums';
 
 @Entity({ name: 'users' })
 export class User {

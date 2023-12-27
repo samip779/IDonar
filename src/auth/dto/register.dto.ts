@@ -8,7 +8,7 @@ import {
   IsString,
   MinLength,
 } from 'class-validator';
-import { Gender, BloodGroup } from 'src/users/enums';
+import { BloodGroup, Gender } from '../../common/enums';
 
 export class CreateUserDto {
   @ApiProperty({ example: 'John' })

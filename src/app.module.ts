@@ -7,6 +7,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { AuthModule } from './auth/auth.module';
 import { EmailModule } from './email/email.module';
 import { OtpModule } from './otp/otp.module';
+import { BloodRequestsModule } from './blood-requests/blood-requests.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { OtpModule } from './otp/otp.module';
     AuthModule,
     EmailModule,
     OtpModule,
+    BloodRequestsModule,
   ],
   controllers: [],
 
