@@ -28,4 +28,12 @@ export class BloodRequestsService {
       message: 'success',
     };
   }
+
+  async getBloodRequests() {
+    return await this.bloodRequestsRepository.find({
+      order: {
+        donationDate: 'DESC',
+      },
+    });
+  }
 }

@@ -24,3 +24,14 @@ export class BloodRequestDto {
   @IsString()
   address: string;
 }
+
+export class GetBloodRequestsReponse extends BloodRequestDto {
+  @ApiProperty({ example: '487d1398-f9e7-403a-af96-17589e97475b' })
+  id: string;
+
+  @ApiProperty({ example: '2023-12-27T02:19:23.169Z' })
+  createdAt: Date;
+
+  @ApiProperty({ example: '2023-12-27T02:20:07.992Z' })
+  updatedAt: Date;
+}
