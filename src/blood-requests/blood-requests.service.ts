@@ -32,7 +32,7 @@ export class BloodRequestsService {
   async getBloodRequests() {
     return await this.bloodRequestsRepository.find({
       order: {
-        donationDate: 'DESC',
+        donationDate: 'ASC',
       },
     });
   }
