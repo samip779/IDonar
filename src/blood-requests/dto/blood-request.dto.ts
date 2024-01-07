@@ -1,4 +1,11 @@
-import { IsDateString, IsEnum, IsNumber, IsString, Min } from 'class-validator';
+import {
+  IsDateString,
+  IsEnum,
+  IsNumber,
+  IsPhoneNumber,
+  IsString,
+  Min,
+} from 'class-validator';
 import { BloodGroup, Gender } from '../../common/enums';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -19,6 +26,10 @@ export class BloodRequestDto {
   @ApiProperty({ example: '2023-10-04 05:11:40' })
   @IsDateString()
   donationDate: Date;
+
+  @ApiProperty({ example: '+977 9847574737' })
+  @IsPhoneNumber()
+  contactNumber: string;
 
   @ApiProperty({ example: 'Nobel Hopital, KanchanBari, Biratnagar' })
   @IsString()

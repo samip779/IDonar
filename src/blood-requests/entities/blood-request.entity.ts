@@ -24,6 +24,9 @@ export class BloodRequest {
   @Column({ name: 'donation_date' })
   donationDate: Date;
 
+  @Column({ name: 'contact_number', nullable: true })
+  contactNumber: string;
+
   @Column({ name: 'address' })
   address: string;
 
