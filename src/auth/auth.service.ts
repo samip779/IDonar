@@ -1,5 +1,7 @@
 import {
   BadRequestException,
+  HttpException,
+  HttpStatus,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -35,7 +37,10 @@ export class AuthService {
     );
 
     if (userWithEmail)
-      throw new BadRequestException({ message: 'user already exists' });
+      throw new HttpException(
+        { statusCode: HttpStatus.CONFLICT, message: 'email already exists' },
+        HttpStatus.CONFLICT,
+      );
 
     const user = await this.usersService.create({
       email: email.toLowerCase(),
@@ -73,10 +78,19 @@ export class AuthService {
     );
 
     if (!userWithEmail)
-      throw new NotFoundException({ message: 'user not found' });
+      throw new HttpException(
+        { statusCode: HttpStatus.NOT_FOUND, message: 'invalid credentials' },
+        HttpStatus.NOT_FOUND,
+      );
 
     if (!(await argon2.verify(userWithEmail.password, password)))
-      throw new BadRequestException({ message: 'email or password is wrong' });
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: 'invalid credentials',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
 
     if (!userWithEmail.isVerified) {
       const otp = await this.otpService.createOtp(
@@ -91,10 +105,19 @@ export class AuthService {
         otpType: otp.type,
       });
 
-      throw new BadRequestException({
-        verified: false,
-        message: 'email not verified',
-      });
+      throw new HttpException(
+        {
+          statusCode: HttpStatus.FORBIDDEN,
+          verified: false,
+          message: 'email not verified',
+        },
+        HttpStatus.FORBIDDEN,
+      );
+
+      // throw new BadRequestException({
+      //   verified: false,
+      //   message: 'email not verified',
+      // });
     }
 
     return {
