@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import {
   BloodRequestDto,
   GetBloodRequestsReponse,
@@ -6,6 +6,8 @@ import {
 import { BloodRequestsService } from './blood-requests.service';
 import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../guards/jwt.guard';
+import { GetUser } from '../decorators/get-user.decorator';
+import { User } from '../users/entities/user.entity';
 
 @ApiTags('blood request')
 @Controller('blood-requests')
@@ -14,17 +16,25 @@ export class BloodRequestsController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @ApiResponse({
-    type: GetBloodRequestsReponse,
-    isArray: true,
-  })
   @Get()
   getRequests() {
     return this.bloodRequestsService.getBloodRequests();
   }
 
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get(':id')
+  getRequest(@Param('id') requestId: string) {
+    return this.bloodRequestsService.getBloodRequest(requestId);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Post()
-  bloodRequest(@Body() bloodRequestDto: BloodRequestDto) {
-    return this.bloodRequestsService.addBloodRequest(bloodRequestDto);
+  bloodRequest(
+    @Body() bloodRequestDto: BloodRequestDto,
+    @GetUser() user: User,
+  ) {
+    return this.bloodRequestsService.addBloodRequest(bloodRequestDto, user);
   }
 }
