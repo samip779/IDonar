@@ -8,6 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { EmailModule } from './email/email.module';
 import { OtpModule } from './otp/otp.module';
 import { BloodRequestsModule } from './blood-requests/blood-requests.module';
+import { GatewayModule } from './gateway/gateway.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { BloodRequestsModule } from './blood-requests/blood-requests.module';
     EmailModule,
     OtpModule,
     BloodRequestsModule,
+    GatewayModule,
   ],
   controllers: [],
 
