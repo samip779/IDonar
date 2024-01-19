@@ -5,6 +5,7 @@ import { Repository } from 'typeorm';
 import { BloodRequestDto } from './dto/blood-request.dto';
 import { User } from '../users/entities/user.entity';
 import { NOTFOUND } from 'dns';
+import { AcceptBloodRequestDto } from './dto/accept-blood-request.dto';
 
 @Injectable()
 export class BloodRequestsService {
@@ -86,5 +87,9 @@ export class BloodRequestsService {
       throw new HttpException('no request with that id', HttpStatus.NOT_FOUND);
 
     return bloodRequest;
+  }
+
+  async acceptBloodRequest(acceptBloodRequestDto: AcceptBloodRequestDto) {
+    return acceptBloodRequestDto;
   }
 }

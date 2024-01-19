@@ -8,6 +8,7 @@ import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../guards/jwt.guard';
 import { GetUser } from '../decorators/get-user.decorator';
 import { User } from '../users/entities/user.entity';
+import { AcceptBloodRequestDto } from './dto/accept-blood-request.dto';
 
 @ApiTags('blood request')
 @Controller('blood-requests')
@@ -36,5 +37,15 @@ export class BloodRequestsController {
     @GetUser() user: User,
   ) {
     return this.bloodRequestsService.addBloodRequest(bloodRequestDto, user);
+  }
+
+  // @ApiBearerAuth()
+  // @UseGuards(JwtAuthGuard)
+  @Post('accept')
+  acceptBloodRequest(
+    @Body() acceptBloodRequestDto: AcceptBloodRequestDto,
+    // @GetUser() user: User,
+  ) {
+    return this.bloodRequestsService.acceptBloodRequest(acceptBloodRequestDto);
   }
 }
