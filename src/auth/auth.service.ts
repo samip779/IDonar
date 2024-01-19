@@ -124,6 +124,7 @@ export class AuthService {
       message: 'user logged in successfully',
       email: userWithEmail.email,
       bloodGroup: userWithEmail.bloodGroup,
+      id: userWithEmail.id,
       token: await this.jwtService.signAsync(
         { sub: userWithEmail.id },
         { expiresIn: '1d', secret: JWTSECRET },
