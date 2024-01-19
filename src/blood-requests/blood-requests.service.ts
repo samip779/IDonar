@@ -6,6 +6,7 @@ import { BloodRequestDto } from './dto/blood-request.dto';
 import { User } from '../users/entities/user.entity';
 import { NOTFOUND } from 'dns';
 import { AcceptBloodRequestDto } from './dto/accept-blood-request.dto';
+import { getCompatibleBloodGroups } from '../helpers/compatibility';
 
 @Injectable()
 export class BloodRequestsService {
@@ -90,6 +91,31 @@ export class BloodRequestsService {
   }
 
   async acceptBloodRequest(acceptBloodRequestDto: AcceptBloodRequestDto) {
-    return acceptBloodRequestDto;
+    const bloodRequest = await this.bloodRequestsRepository.findOne({
+      where: {
+        id: acceptBloodRequestDto.bloodRequestId,
+      },
+      select: ['id', 'bloodGroup'],
+    });
+
+    if (!bloodRequest)
+      throw new HttpException(
+        'blood request not found with the provided id',
+        HttpStatus.NOT_FOUND,
+      );
+
+    const compatibleBloodGroups = getCompatibleBloodGroups(
+      bloodRequest.bloodGroup,
+    );
+
+    if (!compatibleBloodGroups.includes(acceptBloodRequestDto.donorBloodGroup))
+      throw new HttpException(
+        'incompatible donor blood group',
+        HttpStatus.BAD_REQUEST,
+      );
+
+    return {
+      message: 'success',
+    };
   }
 }
