@@ -7,12 +7,16 @@ import { User } from '../users/entities/user.entity';
 import { NOTFOUND } from 'dns';
 import { AcceptBloodRequestDto } from './dto/accept-blood-request.dto';
 import { getCompatibleBloodGroups } from '../helpers/compatibility';
+import { AcceptedBloodRequest } from './entities/accepted-blood-request.entity';
 
 @Injectable()
 export class BloodRequestsService {
   constructor(
     @InjectRepository(BloodRequest)
     private readonly bloodRequestsRepository: Repository<BloodRequest>,
+
+    @InjectRepository(AcceptedBloodRequest)
+    private readonly acceptedBloodRequestRepository: Repository<AcceptedBloodRequest>,
   ) {}
 
   async addBloodRequest(bloodRequestDto: BloodRequestDto, requester: User) {
@@ -90,12 +94,16 @@ export class BloodRequestsService {
     return bloodRequest;
   }
 
-  async acceptBloodRequest(acceptBloodRequestDto: AcceptBloodRequestDto) {
+  async acceptBloodRequest(
+    acceptBloodRequestDto: AcceptBloodRequestDto,
+    user: User,
+  ) {
+    // check if the blood request id in paylod is available in db
     const bloodRequest = await this.bloodRequestsRepository.findOne({
       where: {
         id: acceptBloodRequestDto.bloodRequestId,
       },
-      select: ['id', 'bloodGroup'],
+      select: ['id', 'bloodGroup', 'requesterId'],
     });
 
     if (!bloodRequest)
@@ -104,6 +112,7 @@ export class BloodRequestsService {
         HttpStatus.NOT_FOUND,
       );
 
+    // check if the blood group in payload is compatible with the victim's blood group
     const compatibleBloodGroups = getCompatibleBloodGroups(
       bloodRequest.bloodGroup,
     );
@@ -114,8 +123,25 @@ export class BloodRequestsService {
         HttpStatus.BAD_REQUEST,
       );
 
-    return {
-      message: 'success',
-    };
+    // check if the user has already requested to donate for the same blood request
+    const isAlreadyRequested =
+      await this.acceptedBloodRequestRepository.findOne({
+        where: { acceptedAccountId: user.id, bloodRequestId: bloodRequest.id },
+        select: ['id'],
+      });
+
+    if (isAlreadyRequested)
+      throw new HttpException('already requested', HttpStatus.BAD_REQUEST);
+
+    // finally add donation request to db
+    const acceptBloodRequest = this.acceptedBloodRequestRepository.create({
+      ...acceptBloodRequestDto,
+      acceptedAccountId: user.id,
+      requesterId: bloodRequest.requesterId,
+    });
+
+    await this.acceptedBloodRequestRepository.save(acceptBloodRequest);
+
+    return acceptBloodRequest;
   }
 }

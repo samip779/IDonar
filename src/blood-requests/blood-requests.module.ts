@@ -3,9 +3,10 @@ import { BloodRequestsController } from './blood-requests.controller';
 import { BloodRequestsService } from './blood-requests.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BloodRequest } from './entities/blood-request.entity';
+import { AcceptedBloodRequest } from './entities/accepted-blood-request.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([BloodRequest])],
+  imports: [TypeOrmModule.forFeature([BloodRequest, AcceptedBloodRequest])],
   controllers: [BloodRequestsController],
   providers: [BloodRequestsService],
 })

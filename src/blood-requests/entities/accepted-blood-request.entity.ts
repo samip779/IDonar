@@ -11,6 +11,7 @@ import {
 import { BloodGroup, Gender } from '../../common/enums';
 import { User } from '../../users/entities/user.entity';
 import { AcceptBloodRequestStatus } from '../enums';
+import { BloodRequest } from './blood-request.entity';
 
 @Entity({ name: 'accepted_blood_requests' })
 export class AcceptedBloodRequest {
@@ -69,6 +70,16 @@ export class AcceptedBloodRequest {
   @ManyToOne(() => User, (user) => user.acceptedBloodRequests)
   @JoinColumn({ name: 'accepted_account_id' })
   acceptedAccount: User;
+
+  @Column({ name: 'blood_request_id', type: 'uuid' })
+  bloodRequestId: string;
+
+  @ManyToOne(
+    () => BloodRequest,
+    (bloodRequest) => bloodRequest.acceptedBloodRequests,
+  )
+  @JoinColumn({ name: 'blood_requet_id' })
+  bloodRequest: BloodRequest;
 
   // automatic
   @CreateDateColumn({ name: 'created_at' })

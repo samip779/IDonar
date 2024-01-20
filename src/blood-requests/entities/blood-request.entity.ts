@@ -5,12 +5,14 @@ import {
   Entity,
   JoinColumn,
   ManyToOne,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { BloodGroup, Gender } from '../../common/enums';
 import { User } from '../../users/entities/user.entity';
 import { BloodRequestStatus } from '../enums';
+import { AcceptedBloodRequest } from './accepted-blood-request.entity';
 
 @Entity({ name: 'blood_requests' })
 export class BloodRequest {
@@ -50,6 +52,12 @@ export class BloodRequest {
   @ManyToOne(() => User, (user) => user.bloodRequests)
   @JoinColumn({ name: 'requester_id' })
   requester: User;
+
+  @OneToMany(
+    () => AcceptedBloodRequest,
+    (acceptedBloodRequest) => acceptedBloodRequest.bloodRequest,
+  )
+  acceptedBloodRequests: AcceptedBloodRequest[];
 
   // automatic
   @CreateDateColumn({ name: 'created_at' })

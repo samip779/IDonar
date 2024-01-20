@@ -36,13 +36,16 @@ export class BloodRequestsController {
     return this.bloodRequestsService.addBloodRequest(bloodRequestDto, user);
   }
 
-  // @ApiBearerAuth()
-  // @UseGuards(JwtAuthGuard)
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Post('accept')
   acceptBloodRequest(
     @Body() acceptBloodRequestDto: AcceptBloodRequestDto,
-    // @GetUser() user: User,
+    @GetUser() user: User,
   ) {
-    return this.bloodRequestsService.acceptBloodRequest(acceptBloodRequestDto);
+    return this.bloodRequestsService.acceptBloodRequest(
+      acceptBloodRequestDto,
+      user,
+    );
   }
 }
