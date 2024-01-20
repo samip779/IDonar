@@ -1,10 +1,7 @@
 import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
-import {
-  BloodRequestDto,
-  GetBloodRequestsReponse,
-} from './dto/blood-request.dto';
+import { BloodRequestDto } from './dto/blood-request.dto';
 import { BloodRequestsService } from './blood-requests.service';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../guards/jwt.guard';
 import { GetUser } from '../decorators/get-user.decorator';
 import { User } from '../users/entities/user.entity';

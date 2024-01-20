@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { BloodGroup, Gender } from '../../common/enums';
 import {
+  IsBoolean,
   IsEnum,
   IsNumber,
   IsOptional,
@@ -54,4 +55,8 @@ export class AcceptBloodRequestDto {
   @IsOptional()
   @IsString()
   donorDiseases?: string;
+
+  @ApiProperty({ example: true, required: true })
+  @IsBoolean()
+  isDonorUser: boolean;
 }

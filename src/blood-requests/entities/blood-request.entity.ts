@@ -10,6 +10,7 @@ import {
 } from 'typeorm';
 import { BloodGroup, Gender } from '../../common/enums';
 import { User } from '../../users/entities/user.entity';
+import { BloodRequestStatus } from '../enums';
 
 @Entity({ name: 'blood_requests' })
 export class BloodRequest {
@@ -34,8 +35,15 @@ export class BloodRequest {
   @Column({ name: 'address' })
   address: string;
 
-  // relations
+  @Column({
+    name: 'status',
+    type: 'enum',
+    enum: BloodRequestStatus,
+    default: BloodRequestStatus.PENDING,
+  })
+  status: BloodRequestStatus;
 
+  // relations
   @Column({ name: 'requester_id', type: 'uuid' })
   requesterId: string;
 
@@ -44,7 +52,6 @@ export class BloodRequest {
   requester: User;
 
   // automatic
-
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 

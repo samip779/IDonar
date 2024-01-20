@@ -9,6 +9,7 @@ import {
 import { OTP } from '../../otp/entities/otp.entity';
 import { BloodGroup, Gender } from '../../common/enums';
 import { BloodRequest } from '../../blood-requests/entities/blood-request.entity';
+import { AcceptedBloodRequest } from '../../blood-requests/entities/accepted-blood-request.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -70,4 +71,10 @@ export class User {
 
   @OneToMany(() => BloodRequest, (bloodRequest) => bloodRequest.requester)
   bloodRequests: BloodRequest[];
+
+  @OneToMany(
+    () => AcceptedBloodRequest,
+    (acceptedBloodRequest) => acceptedBloodRequest.acceptedAccount,
+  )
+  acceptedBloodRequests: AcceptedBloodRequest[];
 }
