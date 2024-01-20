@@ -2,6 +2,7 @@ import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../guards/jwt.guard';
+import { GetUser } from '../decorators/get-user.decorator';
 
 @ApiTags('users')
 @Controller('users')
@@ -10,8 +11,8 @@ export class UsersController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  @Get(':id')
-  getUserDetails(@Param('id') id: string) {
+  @Get('me')
+  getUserDetails(@GetUser('id') id: string) {
     return this.usersService.findOneBy(
       { id },
       {
