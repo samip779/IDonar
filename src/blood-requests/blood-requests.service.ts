@@ -153,4 +153,79 @@ export class BloodRequestsService {
 
     return acceptBloodRequest;
   }
+
+  async getUsersBloodRequests(userId: string) {
+    const usersBloodRequests = await this.bloodRequestsRepository.find({
+      where: {
+        requesterId: userId,
+      },
+      select: [
+        'id',
+        'patientGender',
+        'patientAge',
+        'bloodGroup',
+        'donationDate',
+        'contactNumber',
+        'address',
+        'status',
+        'createdAt',
+        'updatedAt',
+      ],
+    });
+
+    return usersBloodRequests.map((request) => ({
+      ...request,
+      compatibleDonors: getCompatibleBloodGroups(request.bloodGroup),
+    }));
+  }
+
+  async getUserBloodRequest(userId: string, bloodRequestId: string) {
+    const bloodRequest = await this.bloodRequestsRepository.findOne({
+      where: {
+        id: bloodRequestId,
+        requesterId: userId,
+      },
+      relations: {
+        acceptedBloodRequests: { acceptedAccount: true },
+      },
+      select: {
+        id: true,
+        patientAge: true,
+        patientGender: true,
+        bloodGroup: true,
+        donationDate: true,
+        contactNumber: true,
+        address: true,
+        status: true,
+        createdAt: true,
+        updatedAt: true,
+        acceptedBloodRequests: {
+          id: true,
+          donorFullName: true,
+          donorGender: true,
+          donorAge: true,
+          donorHeight: true,
+          donorWeight: true,
+          donorAddress: true,
+          donorDiseases: true,
+          donorBloodGroup: true,
+          donorContactNumber: true,
+          status: true,
+          createdAt: true,
+          updatedAt: true,
+          acceptedAccount: {
+            id: true,
+            firstname: true,
+            lastname: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    return {
+      ...bloodRequest,
+      compatibleDonors: getCompatibleBloodGroups(bloodRequest.bloodGroup),
+    };
+  }
 }

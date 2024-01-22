@@ -78,7 +78,7 @@ export class AcceptedBloodRequest {
     () => BloodRequest,
     (bloodRequest) => bloodRequest.acceptedBloodRequests,
   )
-  @JoinColumn({ name: 'blood_requet_id' })
+  @JoinColumn({ name: 'blood_request_id' })
   bloodRequest: BloodRequest;
 
   // automatic

@@ -21,6 +21,23 @@ export class BloodRequestsController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
+  @Get('me')
+  getUsersBloodRequests(@GetUser('id') id: string) {
+    return this.bloodRequestsService.getUsersBloodRequests(id);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('me/:blood_request_id')
+  getUsersBloodRequest(
+    @GetUser('id') id: string,
+    @Param('blood_request_id') bloodRequestId: string,
+  ) {
+    return this.bloodRequestsService.getUserBloodRequest(id, bloodRequestId);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Get(':id')
   getRequest(@Param('id') requestId: string) {
     return this.bloodRequestsService.getBloodRequest(requestId);
