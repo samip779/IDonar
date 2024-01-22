@@ -23,6 +23,7 @@ export class UsersController {
         bloodGroup: true,
         gender: true,
         weight: true,
+        height: true,
         phone: true,
         city: true,
         province: true,
