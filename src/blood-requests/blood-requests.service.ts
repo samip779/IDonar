@@ -39,7 +39,7 @@ export class BloodRequestsService {
   }
 
   async getBloodRequests() {
-    return await this.bloodRequestsRepository.find({
+    const requests = await this.bloodRequestsRepository.find({
       select: {
         id: true,
         patientGender: true,
@@ -51,10 +51,16 @@ export class BloodRequestsService {
         createdAt: true,
         updatedAt: true,
       },
-
       order: {
         donationDate: 'ASC',
       },
+    });
+
+    return requests.map((request) => {
+      return {
+        ...request,
+        compatibleDonors: getCompatibleBloodGroups(request.bloodGroup),
+      };
     });
   }
 
@@ -91,7 +97,10 @@ export class BloodRequestsService {
     if (!bloodRequest)
       throw new HttpException('no request with that id', HttpStatus.NOT_FOUND);
 
-    return bloodRequest;
+    return {
+      ...bloodRequest,
+      compatibleDonors: getCompatibleBloodGroups(bloodRequest.bloodGroup),
+    };
   }
 
   async acceptBloodRequest(
