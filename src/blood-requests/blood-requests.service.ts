@@ -1,7 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BloodRequest } from './entities/blood-request.entity';
-import { Repository } from 'typeorm';
+import { MoreThanOrEqual, Repository } from 'typeorm';
 import { BloodRequestDto } from './dto/blood-request.dto';
 import { User } from '../users/entities/user.entity';
 import { NOTFOUND } from 'dns';
@@ -50,6 +50,9 @@ export class BloodRequestsService {
         address: true,
         createdAt: true,
         updatedAt: true,
+      },
+      where: {
+        donationDate: MoreThanOrEqual(new Date()),
       },
       order: {
         donationDate: 'ASC',
