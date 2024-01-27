@@ -16,7 +16,7 @@ import { GatewayModule } from './gateway/gateway.module';
     ThrottlerModule.forRoot([
       {
         ttl: 60000,
-        limit: 10,
+        limit: 20,
       },
     ]),
     UsersModule,

@@ -133,14 +133,14 @@ export class BloodRequestsService {
       );
 
     // check if the user has already requested to donate for the same blood request
-    const isAlreadyRequested =
-      await this.acceptedBloodRequestRepository.findOne({
-        where: { acceptedAccountId: user.id, bloodRequestId: bloodRequest.id },
-        select: ['id'],
-      });
+    // const isAlreadyRequested =
+    //   await this.acceptedBloodRequestRepository.findOne({
+    //     where: { acceptedAccountId: user.id, bloodRequestId: bloodRequest.id },
+    //     select: ['id'],
+    //   });
 
-    if (isAlreadyRequested)
-      throw new HttpException('already requested', HttpStatus.BAD_REQUEST);
+    // if (isAlreadyRequested)
+    //   throw new HttpException('already requested', HttpStatus.BAD_REQUEST);
 
     // finally add donation request to db
     const acceptBloodRequest = this.acceptedBloodRequestRepository.create({
