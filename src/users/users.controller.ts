@@ -1,8 +1,13 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Patch, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../guards/jwt.guard';
 import { GetUser } from '../decorators/get-user.decorator';
+import {
+  ResetPasswordDto,
+  ResetPasswordOTPDto,
+  VerifyResetPasswordOtpDto,
+} from './dto/reset-password.dto';
 
 @ApiTags('users')
 @Controller('users')
@@ -30,5 +35,22 @@ export class UsersController {
         street: true,
       },
     );
+  }
+
+  @Patch('reset-password/otp')
+  getPasswordResetOTP(@Body() resetPasswordOtpDto: ResetPasswordOTPDto) {
+    return this.usersService.getPasswordResetOTP(resetPasswordOtpDto.email);
+  }
+
+  @Patch('reset-password/otp/verify')
+  verifyResetPasswordOtp(
+    @Body() verifyResetPasswordOtpDto: VerifyResetPasswordOtpDto,
+  ) {
+    return this.usersService.verifyResetPasswordOtp(verifyResetPasswordOtpDto);
+  }
+
+  @Patch('reset-password')
+  resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
+    return this.usersService.resetPassword(resetPasswordDto);
   }
 }
