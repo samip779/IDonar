@@ -8,6 +8,7 @@ import { NOTFOUND } from 'dns';
 import { AcceptBloodRequestDto } from './dto/accept-blood-request.dto';
 import { getCompatibleBloodGroups } from '../helpers/compatibility';
 import { AcceptedBloodRequest } from './entities/accepted-blood-request.entity';
+import { PushNotificationService } from '../push-notification/push-notification.service';
 
 @Injectable()
 export class BloodRequestsService {
@@ -17,6 +18,8 @@ export class BloodRequestsService {
 
     @InjectRepository(AcceptedBloodRequest)
     private readonly acceptedBloodRequestRepository: Repository<AcceptedBloodRequest>,
+
+    private readonly pushNotificationService: PushNotificationService,
   ) {}
 
   async addBloodRequest(bloodRequestDto: BloodRequestDto, requester: User) {
@@ -32,6 +35,16 @@ export class BloodRequestsService {
     });
 
     await this.bloodRequestsRepository.save(newRequest);
+
+    this.pushNotificationService.pushNotification({
+      title: 'New Blood Request',
+      message: `A person in ${bloodRequestDto.address} needs ${bloodRequestDto.bloodGroup}.`,
+      pushData: {
+        bloodGroup: bloodRequestDto.bloodGroup,
+        location: bloodRequestDto.address,
+        contactNumber: bloodRequestDto.contactNumber,
+      },
+    });
 
     return {
       message: 'success',
@@ -153,6 +166,12 @@ export class BloodRequestsService {
     });
 
     await this.acceptedBloodRequestRepository.save(acceptBloodRequest);
+
+    this.pushNotificationService.pushIndieNotification({
+      title: 'Request Accepted',
+      message: `${acceptBloodRequestDto.donorFullName} from ${acceptBloodRequestDto.donorAddress} has accepted your blod request`,
+      subId: bloodRequest.requesterId,
+    });
 
     return acceptBloodRequest;
   }
