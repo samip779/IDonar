@@ -9,6 +9,7 @@ import { AcceptBloodRequestDto } from './dto/accept-blood-request.dto';
 import { getCompatibleBloodGroups } from '../helpers/compatibility';
 import { AcceptedBloodRequest } from './entities/accepted-blood-request.entity';
 import { PushNotificationService } from '../push-notification/push-notification.service';
+import { NotificationService } from '../notification/notification.service';
 
 @Injectable()
 export class BloodRequestsService {
@@ -20,6 +21,8 @@ export class BloodRequestsService {
     private readonly acceptedBloodRequestRepository: Repository<AcceptedBloodRequest>,
 
     private readonly pushNotificationService: PushNotificationService,
+
+    private readonly notificationService: NotificationService,
   ) {}
 
   async addBloodRequest(bloodRequestDto: BloodRequestDto, requester: User) {
@@ -45,6 +48,10 @@ export class BloodRequestsService {
         contactNumber: bloodRequestDto.contactNumber,
       },
     });
+
+    const notification = await this.notificationService.insertNotification(
+      `New Blood Request Placed, Blood Group : ${bloodRequestDto.bloodGroup}, location: ${bloodRequestDto.address}`,
+    );
 
     return {
       message: 'success',
@@ -148,16 +155,6 @@ export class BloodRequestsService {
         HttpStatus.BAD_REQUEST,
       );
 
-    // check if the user has already requested to donate for the same blood request
-    // const isAlreadyRequested =
-    //   await this.acceptedBloodRequestRepository.findOne({
-    //     where: { acceptedAccountId: user.id, bloodRequestId: bloodRequest.id },
-    //     select: ['id'],
-    //   });
-
-    // if (isAlreadyRequested)
-    //   throw new HttpException('already requested', HttpStatus.BAD_REQUEST);
-
     // finally add donation request to db
     const acceptBloodRequest = this.acceptedBloodRequestRepository.create({
       ...acceptBloodRequestDto,
@@ -172,6 +169,11 @@ export class BloodRequestsService {
       message: `${acceptBloodRequestDto.donorFullName} from ${acceptBloodRequestDto.donorAddress} has accepted your blod request`,
       subId: bloodRequest.requesterId,
     });
+
+    const notification = await this.notificationService.insertNotification(
+      `${acceptBloodRequestDto.donorFullName} from ${acceptBloodRequestDto.donorAddress} has requested to donate`,
+      bloodRequest.requesterId,
+    );
 
     return acceptBloodRequest;
   }
