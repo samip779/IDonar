@@ -10,6 +10,7 @@ import { OtpModule } from './otp/otp.module';
 import { BloodRequestsModule } from './blood-requests/blood-requests.module';
 import { GatewayModule } from './gateway/gateway.module';
 import { PushNotificationModule } from './push-notification/push-notification.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { PushNotificationModule } from './push-notification/push-notification.mo
     BloodRequestsModule,
     GatewayModule,
     PushNotificationModule,
+    NotificationModule,
   ],
   controllers: [],
 
