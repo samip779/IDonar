@@ -1,7 +1,10 @@
 import {
+  ConnectedSocket,
+  MessageBody,
   OnGatewayConnection,
   OnGatewayDisconnect,
   OnGatewayInit,
+  SubscribeMessage,
   WebSocketGateway,
   WebSocketServer,
 } from '@nestjs/websockets';
@@ -57,4 +60,19 @@ export class Gateway
   }
 
   handleDisconnect(client: Socket) {}
+
+  @SubscribeMessage('message')
+  onMessage(
+    @MessageBody()
+    data: {
+      to: string;
+      message: string;
+    },
+    @ConnectedSocket() socket: Socket,
+  ) {
+    const message = data.message;
+    const from = socket.data.userId;
+
+    this.server.to(data.to).emit('message', { from, message });
+  }
 }
