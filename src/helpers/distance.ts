@@ -29,5 +29,7 @@ export function calculateDistance(
 
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-  return earthRadiusKm * c;
+  const dist = earthRadiusKm * c;
+
+  return Number(dist.toFixed(2));
 }

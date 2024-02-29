@@ -12,5 +12,5 @@ export const TypeORMConfig: TypeOrmModuleOptions = {
   ssl: true,
   entities: [__dirname + '/../../**/*.entity.{js,ts}'],
   synchronize: false,
-  logging: MODE === 'dev',
+  // logging: MODE === 'dev',
 };
