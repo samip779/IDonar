@@ -1,7 +1,20 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
-import { BloodRequestDto } from './dto/blood-request.dto';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseIntPipe,
+  ParseUUIDPipe,
+  Post,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  BloodRequestDto,
+  GetBloodRequestsQueryDto,
+} from './dto/blood-request.dto';
 import { BloodRequestsService } from './blood-requests.service';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../guards/jwt.guard';
 import { GetUser } from '../decorators/get-user.decorator';
 import { User } from '../users/entities/user.entity';
@@ -12,11 +25,20 @@ import { AcceptBloodRequestDto } from './dto/accept-blood-request.dto';
 export class BloodRequestsController {
   constructor(private readonly bloodRequestsService: BloodRequestsService) {}
 
+  // @ApiQuery({ name: 'lat', required: false, type: 'number' })
+  // @ApiQuery({ name: 'lon', required: false, type: 'number' })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get()
-  getRequests() {
-    return this.bloodRequestsService.getBloodRequests();
+  getRequests(
+    // @Query('lat', ParseIntPipe) lat: number,
+    // @Query('lon', ParseIntPipe) lon: number,
+    @Query() q: GetBloodRequestsQueryDto,
+  ) {
+    return this.bloodRequestsService.getBloodRequests({
+      latitide: q.lat,
+      longitude: q.lon,
+    });
   }
 
   @ApiBearerAuth()
@@ -31,9 +53,15 @@ export class BloodRequestsController {
   @Get('me/:blood_request_id')
   getUsersBloodRequest(
     @GetUser('id') id: string,
-    @Param('blood_request_id') bloodRequestId: string,
+    @Param('blood_request_id', ParseUUIDPipe) bloodRequestId: string,
+    // @Query('lat', ParseIntPipe) lat: number,
+    // @Query('lon', ParseIntPipe) lon: number,
+    @Query() q: GetBloodRequestsQueryDto,
   ) {
-    return this.bloodRequestsService.getUserBloodRequest(id, bloodRequestId);
+    return this.bloodRequestsService.getUserBloodRequest(id, bloodRequestId, {
+      latitide: q.lat,
+      longitude: q.lon,
+    });
   }
 
   @ApiBearerAuth()

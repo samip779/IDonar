@@ -17,6 +17,7 @@ import { PushNotificationService } from '../push-notification/push-notification.
 import { NotificationService } from '../notification/notification.service';
 import { triggerAsyncId } from 'async_hooks';
 import { AcceptBloodRequestStatus, BloodRequestStatus } from './enums';
+import { ICoordinate, calculateDistance } from '../helpers/distance';
 
 @Injectable()
 export class BloodRequestsService {
@@ -65,7 +66,7 @@ export class BloodRequestsService {
     };
   }
 
-  async getBloodRequests() {
+  async getBloodRequests(options?: ICoordinate) {
     const requests = await this.bloodRequestsRepository.find({
       select: {
         id: true,
@@ -77,6 +78,8 @@ export class BloodRequestsService {
         address: true,
         createdAt: true,
         updatedAt: true,
+        latitude: true,
+        longitude: true,
       },
       where: {
         donationDate: MoreThanOrEqual(new Date()),
@@ -87,9 +90,26 @@ export class BloodRequestsService {
     });
 
     return requests.map((request) => {
+      let distance = null;
+      if (
+        options.latitide &&
+        options.longitude &&
+        request.latitude &&
+        request.longitude
+      ) {
+        distance = calculateDistance(
+          { latitide: options.latitide, longitude: options.longitude },
+          { latitide: request.latitude, longitude: request.longitude },
+        );
+      }
+
+      delete request.latitude;
+      delete request.longitude;
+
       return {
         ...request,
         compatibleDonors: getCompatibleBloodGroups(request.bloodGroup),
+        distance,
       };
     });
   }
@@ -215,7 +235,11 @@ export class BloodRequestsService {
     }));
   }
 
-  async getUserBloodRequest(userId: string, bloodRequestId: string) {
+  async getUserBloodRequest(
+    userId: string,
+    bloodRequestId: string,
+    options?: ICoordinate,
+  ) {
     const bloodRequest = await this.bloodRequestsRepository.findOne({
       where: {
         id: bloodRequestId,
@@ -249,6 +273,8 @@ export class BloodRequestsService {
           status: true,
           createdAt: true,
           updatedAt: true,
+          latitude: true,
+          longitude: true,
           acceptedAccount: {
             id: true,
             firstname: true,
@@ -262,6 +288,30 @@ export class BloodRequestsService {
     return {
       ...bloodRequest,
       compatibleDonors: getCompatibleBloodGroups(bloodRequest.bloodGroup),
+      acceptedBloodRequests: bloodRequest.acceptedBloodRequests.map(
+        (request) => {
+          let distance = null;
+          if (
+            options.latitide &&
+            options.longitude &&
+            request.latitude &&
+            request.longitude
+          ) {
+            distance = calculateDistance(
+              { latitide: options.latitide, longitude: options.longitude },
+              { latitide: request.latitude, longitude: request.longitude },
+            );
+          }
+
+          delete request.latitude;
+          delete request.longitude;
+
+          return {
+            ...request,
+            distance,
+          };
+        },
+      ),
     };
   }
 

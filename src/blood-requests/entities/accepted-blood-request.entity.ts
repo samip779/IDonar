@@ -74,6 +74,12 @@ export class AcceptedBloodRequest {
   @Column({ name: 'blood_request_id', type: 'uuid' })
   bloodRequestId: string;
 
+  @Column({ name: 'latitude', type: 'double precision', nullable: true })
+  latitude: number;
+
+  @Column({ name: 'longitude', type: 'double precision', nullable: true })
+  longitude: number;
+
   @ManyToOne(
     () => BloodRequest,
     (bloodRequest) => bloodRequest.acceptedBloodRequests,

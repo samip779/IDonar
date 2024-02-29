@@ -1,13 +1,17 @@
 import {
   IsDateString,
   IsEnum,
+  IsLatitude,
+  IsLongitude,
   IsNumber,
+  IsOptional,
   IsPhoneNumber,
   IsString,
   Min,
 } from 'class-validator';
 import { BloodGroup, Gender } from '../../common/enums';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { Transform, Type } from 'class-transformer';
 
 export class BloodRequestDto {
   @ApiProperty({ enum: Gender, example: Gender.FEMALE })
@@ -34,6 +38,16 @@ export class BloodRequestDto {
   @ApiProperty({ example: 'Nobel Hopital, KanchanBari, Biratnagar' })
   @IsString()
   address: string;
+
+  @ApiProperty({ example: 37.4220936 })
+  @IsLatitude()
+  @IsOptional()
+  latitude: number;
+
+  @ApiProperty({ example: -122.083922 })
+  @IsLongitude()
+  @IsOptional()
+  longitude: number;
 }
 
 export class GetBloodRequestsReponse extends BloodRequestDto {
@@ -45,4 +59,22 @@ export class GetBloodRequestsReponse extends BloodRequestDto {
 
   @ApiProperty({ example: '2023-12-27T02:20:07.992Z' })
   updatedAt: Date;
+}
+
+export class GetBloodRequestsQueryDto {
+  @ApiPropertyOptional({
+    example: '234.23434',
+  })
+  @IsLatitude()
+  @IsOptional()
+  @Type(() => Number)
+  lat: number;
+
+  @ApiPropertyOptional({
+    example: '234.23434',
+  })
+  @IsLatitude()
+  @IsOptional()
+  @Type(() => Number)
+  lon: number;
 }

@@ -3,6 +3,8 @@ import { BloodGroup, Gender } from '../../common/enums';
 import {
   IsBoolean,
   IsEnum,
+  IsLatitude,
+  IsLongitude,
   IsNumber,
   IsOptional,
   IsPhoneNumber,
@@ -59,4 +61,14 @@ export class AcceptBloodRequestDto {
   @ApiProperty({ example: true, required: true })
   @IsBoolean()
   isDonorUser: boolean;
+
+  @ApiProperty({ example: 37.4220936 })
+  @IsLatitude()
+  @IsOptional()
+  latitude: number;
+
+  @ApiProperty({ example: -122.083922 })
+  @IsLongitude()
+  @IsOptional()
+  longitude: number;
 }

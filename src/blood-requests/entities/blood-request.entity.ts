@@ -45,6 +45,12 @@ export class BloodRequest {
   })
   status: BloodRequestStatus;
 
+  @Column({ name: 'latitude', type: 'double precision', nullable: true })
+  latitude: number;
+
+  @Column({ name: 'longitude', type: 'double precision', nullable: true })
+  longitude: number;
+
   // relations
   @Column({ name: 'requester_id', type: 'uuid' })
   requesterId: string;
