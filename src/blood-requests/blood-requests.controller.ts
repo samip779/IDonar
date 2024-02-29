@@ -65,4 +65,11 @@ export class BloodRequestsController {
       user,
     );
   }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Get('donation-request/accept/:id')
+  acceptDonationRequest(@Param('id') id: string, @GetUser() user: User) {
+    return this.bloodRequestsService.acceptBloodDonationRequest(id, user.id);
+  }
 }

@@ -1,7 +1,12 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  HttpException,
+  HttpStatus,
+  Injectable,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BloodRequest } from './entities/blood-request.entity';
-import { MoreThanOrEqual, Repository } from 'typeorm';
+import { MoreThan, MoreThanOrEqual, Repository } from 'typeorm';
 import { BloodRequestDto } from './dto/blood-request.dto';
 import { User } from '../users/entities/user.entity';
 import { NOTFOUND } from 'dns';
@@ -10,6 +15,8 @@ import { getCompatibleBloodGroups } from '../helpers/compatibility';
 import { AcceptedBloodRequest } from './entities/accepted-blood-request.entity';
 import { PushNotificationService } from '../push-notification/push-notification.service';
 import { NotificationService } from '../notification/notification.service';
+import { triggerAsyncId } from 'async_hooks';
+import { AcceptBloodRequestStatus, BloodRequestStatus } from './enums';
 
 @Injectable()
 export class BloodRequestsService {
@@ -182,6 +189,8 @@ export class BloodRequestsService {
     const usersBloodRequests = await this.bloodRequestsRepository.find({
       where: {
         requesterId: userId,
+        donationDate: MoreThan(new Date()),
+        status: BloodRequestStatus.PENDING,
       },
       select: [
         'id',
@@ -195,6 +204,9 @@ export class BloodRequestsService {
         'createdAt',
         'updatedAt',
       ],
+      order: {
+        donationDate: 'ASC',
+      },
     });
 
     return usersBloodRequests.map((request) => ({
@@ -250,6 +262,61 @@ export class BloodRequestsService {
     return {
       ...bloodRequest,
       compatibleDonors: getCompatibleBloodGroups(bloodRequest.bloodGroup),
+    };
+  }
+
+  async acceptBloodDonationRequest(
+    acceptedBloodRequestId: string,
+    userId: string,
+  ) {
+    const acceptedBloodRequest =
+      await this.acceptedBloodRequestRepository.findOne({
+        where: {
+          id: acceptedBloodRequestId,
+        },
+        select: {
+          id: true,
+          acceptedAccountId: true,
+          bloodRequest: {
+            id: true,
+            donationDate: true,
+            address: true,
+          },
+        },
+        relations: { bloodRequest: true },
+      });
+
+    if (!acceptedBloodRequest)
+      throw new BadRequestException('Blood Request Not Found');
+
+    if (acceptedBloodRequest.bloodRequest.donationDate < new Date())
+      throw new BadRequestException('Can not accept expired request');
+
+    acceptedBloodRequest.status = AcceptBloodRequestStatus.INVITED_BY_REQUESTER;
+
+    await this.acceptedBloodRequestRepository.save(acceptedBloodRequest);
+
+    this.notificationService.insertNotification(
+      `
+      You are invited to donate blood for the request you accepted earlier.
+      location: ${acceptedBloodRequest.bloodRequest.address}
+      date: ${acceptedBloodRequest.bloodRequest.donationDate.toString()}
+      `,
+      acceptedBloodRequest.acceptedAccountId,
+    );
+
+    this.pushNotificationService.pushIndieNotification({
+      title: 'Donation Invite Alert',
+      message: `You are invited to donate blood for the request you accepted earlier.
+      location: ${acceptedBloodRequest.bloodRequest.address}
+      date: ${acceptedBloodRequest.bloodRequest.donationDate.toString()}
+      `,
+      subId: acceptedBloodRequest.acceptedAccountId,
+      pushData: {},
+    });
+
+    return {
+      message: 'success',
     };
   }
 }
