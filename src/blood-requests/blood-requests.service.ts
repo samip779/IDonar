@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BloodRequest } from './entities/blood-request.entity';
-import { MoreThan, MoreThanOrEqual, Repository } from 'typeorm';
+import { Equal, MoreThan, MoreThanOrEqual, Not, Repository } from 'typeorm';
 import { BloodRequestDto } from './dto/blood-request.dto';
 import { User } from '../users/entities/user.entity';
 import { NOTFOUND } from 'dns';
@@ -34,11 +34,11 @@ export class BloodRequestsService {
   ) {}
 
   async addBloodRequest(bloodRequestDto: BloodRequestDto, requester: User) {
-    if (new Date(bloodRequestDto.donationDate) < new Date())
-      throw new HttpException(
-        'donation date should not be in past',
-        HttpStatus.BAD_REQUEST,
-      );
+    // if (new Date(bloodRequestDto.donationDate) < new Date())
+    //   throw new HttpException(
+    //     'donation date should not be in past',
+    //     HttpStatus.BAD_REQUEST,
+    //   );
 
     const newRequest = this.bloodRequestsRepository.create({
       ...bloodRequestDto,
@@ -57,7 +57,7 @@ export class BloodRequestsService {
       },
     });
 
-    const notification = await this.notificationService.insertNotification(
+    await this.notificationService.insertNotification(
       `New Blood Request Placed, Blood Group : ${bloodRequestDto.bloodGroup}, location: ${bloodRequestDto.address}`,
     );
 
@@ -66,14 +66,16 @@ export class BloodRequestsService {
     };
   }
 
-  async getBloodRequests(options?: ICoordinate) {
+  async getBloodRequests(userId: string, options?: ICoordinate) {
     const requests = await this.bloodRequestsRepository.find({
       select: {
         id: true,
         patientGender: true,
         patientAge: true,
         bloodGroup: true,
-        donationDate: true,
+        priority: true,
+        status: true,
+        // donationDate: true,
         contactNumber: true,
         address: true,
         createdAt: true,
@@ -82,10 +84,13 @@ export class BloodRequestsService {
         longitude: true,
       },
       where: {
-        donationDate: MoreThanOrEqual(new Date()),
+        status: BloodRequestStatus.PENDING,
+        requester: Not(Equal(userId)),
+        // requesterId:
+        // donationDate: MoreThanOrEqual(new Date()),
       },
       order: {
-        donationDate: 'ASC',
+        priority: 'ASC',
       },
     });
 
@@ -121,10 +126,11 @@ export class BloodRequestsService {
         patientGender: true,
         patientAge: true,
         bloodGroup: true,
-        donationDate: true,
+        // donationDate: true,
         contactNumber: true,
         address: true,
         createdAt: true,
+        status: true,
         updatedAt: true,
         requester: {
           id: true,
@@ -209,7 +215,7 @@ export class BloodRequestsService {
     const usersBloodRequests = await this.bloodRequestsRepository.find({
       where: {
         requesterId: userId,
-        donationDate: MoreThan(new Date()),
+        // donationDate: MoreThan(new Date()),
         status: BloodRequestStatus.PENDING,
       },
       select: [
@@ -217,15 +223,17 @@ export class BloodRequestsService {
         'patientGender',
         'patientAge',
         'bloodGroup',
-        'donationDate',
+        // 'donationDate',
         'contactNumber',
         'address',
         'status',
         'createdAt',
         'updatedAt',
+        'status',
       ],
       order: {
-        donationDate: 'ASC',
+        // donationDate: 'ASC',
+        priority: 'ASC',
       },
     });
 
@@ -253,7 +261,7 @@ export class BloodRequestsService {
         patientAge: true,
         patientGender: true,
         bloodGroup: true,
-        donationDate: true,
+        // donationDate: true,
         contactNumber: true,
         address: true,
         status: true,
@@ -329,7 +337,7 @@ export class BloodRequestsService {
           acceptedAccountId: true,
           bloodRequest: {
             id: true,
-            donationDate: true,
+            // donationDate: true,
             address: true,
           },
         },
@@ -339,8 +347,8 @@ export class BloodRequestsService {
     if (!acceptedBloodRequest)
       throw new BadRequestException('Blood Request Not Found');
 
-    if (acceptedBloodRequest.bloodRequest.donationDate < new Date())
-      throw new BadRequestException('Can not accept expired request');
+    // if (acceptedBloodRequest.bloodRequest.donationDate < new Date())
+    // throw new BadRequestException('Can not accept expired request');
 
     acceptedBloodRequest.status = AcceptBloodRequestStatus.INVITED_BY_REQUESTER;
 
@@ -350,7 +358,6 @@ export class BloodRequestsService {
       `
       You are invited to donate blood for the request you accepted earlier.
       location: ${acceptedBloodRequest.bloodRequest.address}
-      date: ${acceptedBloodRequest.bloodRequest.donationDate.toString()}
       `,
       acceptedBloodRequest.acceptedAccountId,
     );
@@ -359,7 +366,6 @@ export class BloodRequestsService {
       title: 'Donation Invite Alert',
       message: `You are invited to donate blood for the request you accepted earlier.
       location: ${acceptedBloodRequest.bloodRequest.address}
-      date: ${acceptedBloodRequest.bloodRequest.donationDate.toString()}
       `,
       subId: acceptedBloodRequest.acceptedAccountId,
       pushData: {},

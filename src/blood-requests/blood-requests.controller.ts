@@ -25,17 +25,14 @@ import { AcceptBloodRequestDto } from './dto/accept-blood-request.dto';
 export class BloodRequestsController {
   constructor(private readonly bloodRequestsService: BloodRequestsService) {}
 
-  // @ApiQuery({ name: 'lat', required: false, type: 'number' })
-  // @ApiQuery({ name: 'lon', required: false, type: 'number' })
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get()
   getRequests(
-    // @Query('lat', ParseIntPipe) lat: number,
-    // @Query('lon', ParseIntPipe) lon: number,
     @Query() q: GetBloodRequestsQueryDto,
+    @GetUser('id') userId: string,
   ) {
-    return this.bloodRequestsService.getBloodRequests({
+    return this.bloodRequestsService.getBloodRequests(userId, {
       latitide: q.lat,
       longitude: q.lon,
     });

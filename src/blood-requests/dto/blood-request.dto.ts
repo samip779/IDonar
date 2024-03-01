@@ -7,6 +7,7 @@ import {
   IsOptional,
   IsPhoneNumber,
   IsString,
+  Max,
   Min,
 } from 'class-validator';
 import { BloodGroup, Gender } from '../../common/enums';
@@ -27,15 +28,21 @@ export class BloodRequestDto {
   @IsEnum(BloodGroup)
   bloodGroup: BloodGroup;
 
-  @ApiProperty({ example: '2023-10-04 05:11:40' })
-  @IsDateString()
-  donationDate: Date;
+  @ApiProperty({ example: 1, enum: [1, 2, 3] })
+  @IsNumber()
+  @Min(1)
+  @Max(3)
+  priority: number;
+
+  // @ApiProperty({ example: '2023-10-04 05:11:40' })
+  // @IsDateString()
+  // donationDate: Date;
 
   @ApiProperty({ example: '+977 9847574737' })
   @IsPhoneNumber()
   contactNumber: string;
 
-  @ApiProperty({ example: 'Nobel Hopital, KanchanBari, Biratnagar' })
+  @ApiProperty({ example: 'Biratnagar' })
   @IsString()
   address: string;
 

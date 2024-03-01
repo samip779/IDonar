@@ -28,8 +28,11 @@ export class BloodRequest {
   @Column({ name: 'blood_group', type: 'enum', enum: BloodGroup })
   bloodGroup: BloodGroup;
 
-  @Column({ name: 'donation_date' })
-  donationDate: Date;
+  // @Column({ name: 'donation_date' })
+  // donationDate: Date;
+
+  @Column({ name: 'priority', default: 1, type: 'int2' })
+  priority: number;
 
   @Column({ name: 'contact_number', nullable: true })
   contactNumber: string;
