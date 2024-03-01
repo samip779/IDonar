@@ -223,6 +223,7 @@ export class BloodRequestsService {
         'patientGender',
         'patientAge',
         'bloodGroup',
+        'priority',
         // 'donationDate',
         'contactNumber',
         'address',
