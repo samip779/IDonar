@@ -47,6 +47,13 @@ export class BloodRequestsController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
+  @Get('donations/me')
+  getUsersDonations(@GetUser('id') id: string) {
+    return this.bloodRequestsService.getUsersDonations(id);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Get('me/:blood_request_id')
   getUsersBloodRequest(
     @GetUser('id') id: string,

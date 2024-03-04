@@ -211,6 +211,37 @@ export class BloodRequestsService {
     return acceptBloodRequest;
   }
 
+  async getUsersDonations(userId: string) {
+    const donations = await this.acceptedBloodRequestRepository.find({
+      where: {
+        acceptedAccountId: userId,
+      },
+      relations: {
+        bloodRequest: true,
+      },
+      select: {
+        id: true,
+        createdAt: true,
+        updatedAt: true,
+        bloodRequest: {
+          id: true,
+          patientAge: true,
+          patientGender: true,
+          contactNumber: true,
+          address: true,
+          latitude: true,
+          longitude: true,
+          bloodGroup: true,
+        },
+      },
+      order: {
+        createdAt: 'DESC',
+      },
+    });
+
+    return donations;
+  }
+
   async getUsersBloodRequests(userId: string) {
     const usersBloodRequests = await this.bloodRequestsRepository.find({
       where: {
