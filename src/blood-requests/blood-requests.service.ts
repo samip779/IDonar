@@ -234,6 +234,7 @@ export class BloodRequestsService {
           longitude: true,
           bloodGroup: true,
           status: true,
+          priority: true,
         },
       },
       order: {
