@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -66,6 +67,16 @@ export class BloodRequestsController {
       latitide: q.lat,
       longitude: q.lon,
     });
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Delete('me/:blood_request_id')
+  deleteUsersBloodRequest(
+    @GetUser('id') id: string,
+    @Param('blood_request_id', ParseUUIDPipe) bloodRequestId: string,
+  ) {
+    return this.bloodRequestsService.deleteUsersRequest(bloodRequestId, id);
   }
 
   @ApiBearerAuth()

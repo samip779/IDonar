@@ -211,6 +211,49 @@ export class BloodRequestsService {
     return acceptBloodRequest;
   }
 
+  async deleteUsersRequest(requestId: string, userId: string) {
+    const request = await this.bloodRequestsRepository.findOne({
+      where: {
+        id: requestId,
+        requesterId: userId,
+      },
+      relations: {
+        acceptedBloodRequests: true,
+      },
+      select: {
+        id: true,
+        status: true,
+        acceptedBloodRequests: {
+          id: true,
+          status: true,
+        },
+      },
+    });
+
+    if (!request)
+      throw new HttpException(
+        'No request with that id',
+        HttpStatus.BAD_REQUEST,
+      );
+
+    const updatedDonations = request.acceptedBloodRequests.map((donation) => {
+      donation.status = AcceptBloodRequestStatus.REQUEST_CANCELLED;
+      donation.deletedAt = new Date();
+      return donation;
+    });
+
+    await this.acceptedBloodRequestRepository.save(updatedDonations);
+    await this.bloodRequestsRepository.save({
+      id: request.id,
+      status: BloodRequestStatus.CANCELLED,
+      deletedAt: new Date(),
+    });
+
+    return {
+      message: 'deleted successfully',
+    };
+  }
+
   async getUsersDonations(userId: string) {
     const donations = await this.acceptedBloodRequestRepository.find({
       where: {
