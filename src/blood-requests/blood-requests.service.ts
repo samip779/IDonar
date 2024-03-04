@@ -223,6 +223,7 @@ export class BloodRequestsService {
         id: true,
         createdAt: true,
         updatedAt: true,
+        status: true,
         bloodRequest: {
           id: true,
           patientAge: true,
@@ -232,6 +233,7 @@ export class BloodRequestsService {
           latitude: true,
           longitude: true,
           bloodGroup: true,
+          status: true,
         },
       },
       order: {
