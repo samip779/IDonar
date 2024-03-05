@@ -133,6 +133,8 @@ export class BloodRequestsService {
         priority: true,
         status: true,
         updatedAt: true,
+        latitude: true,
+        longitude: true,
         requester: {
           id: true,
           firstname: true,
