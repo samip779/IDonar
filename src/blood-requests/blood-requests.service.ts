@@ -297,6 +297,7 @@ export class BloodRequestsService {
       },
       relations: {
         bloodRequest: true,
+        requester: true,
       },
       select: {
         id: true,
@@ -314,6 +315,11 @@ export class BloodRequestsService {
           bloodGroup: true,
           status: true,
           priority: true,
+        },
+        requester: {
+          id: true,
+          firstname: true,
+          lastname: true,
         },
       },
       order: {
