@@ -130,6 +130,7 @@ export class BloodRequestsService {
         contactNumber: true,
         address: true,
         createdAt: true,
+        priority: true,
         status: true,
         updatedAt: true,
         requester: {
