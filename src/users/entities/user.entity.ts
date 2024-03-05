@@ -11,6 +11,7 @@ import { BloodGroup, Gender } from '../../common/enums';
 import { BloodRequest } from '../../blood-requests/entities/blood-request.entity';
 import { AcceptedBloodRequest } from '../../blood-requests/entities/accepted-blood-request.entity';
 import { Notification } from '../../notification/entities/notification.entity';
+import { Message } from '../../messages/entities/message.entity';
 
 @Entity({ name: 'users' })
 export class User {
@@ -81,4 +82,10 @@ export class User {
 
   @OneToMany(() => Notification, (notification) => notification.notifier)
   notifications: Notification[];
+
+  @OneToMany(() => Message, (message) => message.sender)
+  sentMessages: Message[];
+
+  @OneToMany(() => Message, (message) => message.receiver)
+  receivedMessages: Message[];
 }

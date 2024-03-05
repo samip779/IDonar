@@ -11,6 +11,7 @@ import { BloodRequestsModule } from './blood-requests/blood-requests.module';
 import { GatewayModule } from './gateway/gateway.module';
 import { PushNotificationModule } from './push-notification/push-notification.module';
 import { NotificationModule } from './notification/notification.module';
+import { MessagesModule } from './messages/messages.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { NotificationModule } from './notification/notification.module';
     GatewayModule,
     PushNotificationModule,
     NotificationModule,
+    MessagesModule,
   ],
   controllers: [],
 
