@@ -55,6 +55,16 @@ export class BloodRequestsController {
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
+  @Delete('donations/:donationId')
+  deleteDonationRequest(
+    @GetUser('id') userId: string,
+    @Param('donationId') donationId: string,
+  ) {
+    return this.bloodRequestsService.deleteDonationRequest(donationId, userId);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Get('me/:blood_request_id')
   getUsersBloodRequest(
     @GetUser('id') id: string,

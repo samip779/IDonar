@@ -254,6 +254,39 @@ export class BloodRequestsService {
     };
   }
 
+  async deleteDonationRequest(donationId: string, userId: string) {
+    const donation = await this.acceptedBloodRequestRepository.findOne({
+      where: [
+        { id: donationId, requesterId: userId },
+        { id: donationId, acceptedAccountId: userId },
+      ],
+      select: {
+        id: true,
+        requesterId: true,
+        status: true,
+        acceptedAccountId: true,
+      },
+    });
+
+    if (!donation)
+      throw new HttpException(
+        'could not found donation with provided id',
+        HttpStatus.BAD_REQUEST,
+      );
+
+    donation.deletedAt = new Date();
+    donation.status =
+      userId === donation.acceptedAccountId
+        ? AcceptBloodRequestStatus.CANCELLED_BY_DONOR
+        : AcceptBloodRequestStatus.REJECTED_BY_REQUESTER;
+
+    await this.acceptedBloodRequestRepository.save(donation);
+
+    return {
+      message: 'successfully deleted',
+    };
+  }
+
   async getUsersDonations(userId: string) {
     const donations = await this.acceptedBloodRequestRepository.find({
       where: {
