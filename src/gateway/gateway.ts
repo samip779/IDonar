@@ -14,6 +14,7 @@ import { JwtService } from '@nestjs/jwt';
 import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 import { JWTSECRET } from '../environments';
 import { UsersService } from '../users/users.service';
+import { MessagesService } from '../messages/messages.service';
 
 @WebSocketGateway()
 export class Gateway
@@ -23,6 +24,7 @@ export class Gateway
     private gatewayService: GatewayService,
     private readonly jwtService: JwtService,
     private readonly usersService: UsersService,
+    private readonly messagesService: MessagesService,
   ) {}
 
   @WebSocketServer()
@@ -62,7 +64,7 @@ export class Gateway
   handleDisconnect(client: Socket) {}
 
   @SubscribeMessage('message')
-  onMessage(
+  async onMessage(
     @MessageBody()
     data: {
       to: string;
@@ -73,6 +75,16 @@ export class Gateway
     const message = data.message;
     const from = socket.data.userId;
 
-    this.server.to(data.to).emit('message', { from, message });
+    const insertedMessage = await this.messagesService.insertMessage({
+      senderId: from,
+      receiverId: data.to,
+      content: message,
+    });
+
+    this.server.to(data.to).emit('message', {
+      from: insertedMessage.senderId,
+      message: insertedMessage.content,
+      timestamp: insertedMessage.createdAt,
+    });
   }
 }
