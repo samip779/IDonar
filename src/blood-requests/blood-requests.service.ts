@@ -21,7 +21,10 @@ import {
 } from './dto/blood-request.dto';
 import { User } from '../users/entities/user.entity';
 import { NOTFOUND } from 'dns';
-import { AcceptBloodRequestDto } from './dto/accept-blood-request.dto';
+import {
+  AcceptBloodRequestDto,
+  UpdateDonationDto,
+} from './dto/accept-blood-request.dto';
 import { getCompatibleBloodGroups } from '../helpers/compatibility';
 import { AcceptedBloodRequest } from './entities/accepted-blood-request.entity';
 import { PushNotificationService } from '../push-notification/push-notification.service';
@@ -108,6 +111,8 @@ export class BloodRequestsService {
     return this.bloodRequestsRepository.save(updatedRequest);
   }
 
+  // async verifyDonationCompletion(userId: string, donationId: string) {}
+
   async getBloodRequests(userId: string, options?: ICoordinate) {
     const requests = await this.bloodRequestsRepository.find({
       select: {
@@ -159,7 +164,51 @@ export class BloodRequestsService {
     });
   }
 
-  async verifyDonationCompletion(userId: string) {}
+  async verifyDonationCompletion(userId: string, donationId: string) {
+    const donation = await this.acceptedBloodRequestRepository.findOne({
+      where: {
+        requesterId: userId,
+        id: donationId,
+      },
+      select: ['id', 'status', 'bloodRequestId'],
+    });
+
+    if (!donation)
+      throw new HttpException(
+        'Donation with the provided id could not be found',
+        HttpStatus.BAD_REQUEST,
+      );
+
+    const updatedDonation = {
+      id: donation.id,
+      status: AcceptBloodRequestStatus.DONATED,
+    };
+
+    await this.acceptedBloodRequestRepository.save(updatedDonation);
+
+    const othersAcceptedDonations =
+      await this.acceptedBloodRequestRepository.find({
+        where: {
+          bloodRequestId: donation.bloodRequestId,
+          id: Not(Equal(donationId)),
+        },
+        select: ['id', 'status', 'deletedAt'],
+      });
+
+    const deletedDonations = othersAcceptedDonations.map((donation) => {
+      return {
+        id: donation.id,
+        status: AcceptBloodRequestStatus.DONATED_BY_OTHER_DONOR,
+        deletedAt: new Date(),
+      };
+    });
+
+    await this.acceptedBloodRequestRepository.save(deletedDonations);
+
+    return {
+      message: 'success',
+    };
+  }
 
   async getBloodRequest(id: string) {
     const bloodRequest = await this.bloodRequestsRepository.findOne({

@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
 import { BloodGroup, Gender } from '../../common/enums';
 import {
   IsBoolean,
@@ -72,3 +72,5 @@ export class AcceptBloodRequestDto {
   @IsOptional()
   longitude: number;
 }
+
+export class UpdateDonationDto extends PartialType(AcceptBloodRequestDto) {}

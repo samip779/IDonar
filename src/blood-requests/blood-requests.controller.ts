@@ -21,7 +21,10 @@ import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from '../guards/jwt.guard';
 import { GetUser } from '../decorators/get-user.decorator';
 import { User } from '../users/entities/user.entity';
-import { AcceptBloodRequestDto } from './dto/accept-blood-request.dto';
+import {
+  AcceptBloodRequestDto,
+  UpdateDonationDto,
+} from './dto/accept-blood-request.dto';
 import { GetUserDonationsQueryEnum } from './enums';
 import { query } from 'express';
 import { GetUserDonationsQueryDto } from './dto/accept-donation-request.dto';
@@ -105,6 +108,19 @@ export class BloodRequestsController {
   @Get(':id')
   getRequest(@Param('id') requestId: string) {
     return this.bloodRequestsService.getBloodRequest(requestId);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id/donated')
+  verifyDonationCompletion(
+    @Param('id', ParseUUIDPipe) donationRequestId: string,
+    @GetUser('id') userId: string,
+  ) {
+    return this.bloodRequestsService.verifyDonationCompletion(
+      userId,
+      donationRequestId,
+    );
   }
 
   @ApiBearerAuth()
