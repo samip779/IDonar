@@ -5,6 +5,7 @@ import {
   Get,
   Param,
   ParseUUIDPipe,
+  Patch,
   Post,
   Query,
   UseGuards,
@@ -12,6 +13,7 @@ import {
 import {
   BloodRequestDto,
   GetBloodRequestsQueryDto,
+  UpdateBloodRequestDto,
 } from './dto/blood-request.dto';
 import { BloodRequestsService } from './blood-requests.service';
 import { ApiBearerAuth, ApiQuery, ApiTags } from '@nestjs/swagger';
@@ -93,6 +95,21 @@ export class BloodRequestsController {
   @Get(':id')
   getRequest(@Param('id') requestId: string) {
     return this.bloodRequestsService.getBloodRequest(requestId);
+  }
+
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @Patch(':id')
+  updateBloodRequest(
+    @Param('id') requestId: string,
+    @Body() updateBloodRequestDto: UpdateBloodRequestDto,
+    @GetUser('id') userId: string,
+  ) {
+    return this.bloodRequestsService.updateBloodRequests(
+      userId,
+      requestId,
+      updateBloodRequestDto,
+    );
   }
 
   @ApiBearerAuth()

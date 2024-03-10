@@ -1,5 +1,4 @@
 import {
-  IsDateString,
   IsEnum,
   IsLatitude,
   IsLongitude,
@@ -11,8 +10,9 @@ import {
   Min,
 } from 'class-validator';
 import { BloodGroup, Gender } from '../../common/enums';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
+// import { PartialType } from '@nestjs/mapped-types';
 
 export class BloodRequestDto {
   @ApiProperty({ enum: Gender, example: Gender.FEMALE })
@@ -34,10 +34,6 @@ export class BloodRequestDto {
   @Max(3)
   priority: number;
 
-  // @ApiProperty({ example: '2023-10-04 05:11:40' })
-  // @IsDateString()
-  // donationDate: Date;
-
   @ApiProperty({ example: '+977 9847574737' })
   @IsPhoneNumber()
   contactNumber: string;
@@ -56,6 +52,8 @@ export class BloodRequestDto {
   @IsOptional()
   longitude: number;
 }
+
+export class UpdateBloodRequestDto extends PartialType(BloodRequestDto) {}
 
 export class GetBloodRequestsReponse extends BloodRequestDto {
   @ApiProperty({ example: '487d1398-f9e7-403a-af96-17589e97475b' })

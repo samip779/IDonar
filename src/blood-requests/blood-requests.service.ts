@@ -7,7 +7,10 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { BloodRequest } from './entities/blood-request.entity';
 import { Equal, MoreThan, MoreThanOrEqual, Not, Repository } from 'typeorm';
-import { BloodRequestDto } from './dto/blood-request.dto';
+import {
+  BloodRequestDto,
+  UpdateBloodRequestDto,
+} from './dto/blood-request.dto';
 import { User } from '../users/entities/user.entity';
 import { NOTFOUND } from 'dns';
 import { AcceptBloodRequestDto } from './dto/accept-blood-request.dto';
@@ -64,6 +67,32 @@ export class BloodRequestsService {
     return {
       message: 'success',
     };
+  }
+
+  async updateBloodRequests(
+    userId: string,
+    bloodRequestId: string,
+    updateBloodRequestDto: UpdateBloodRequestDto,
+  ) {
+    const bloodRequest = await this.bloodRequestsRepository.findOne({
+      where: {
+        id: bloodRequestId,
+      },
+      select: ['id'],
+    });
+
+    if (!bloodRequest)
+      throw new HttpException(
+        'No request with that id',
+        HttpStatus.BAD_REQUEST,
+      );
+
+    const updatedRequest = {
+      id: bloodRequest.id,
+      ...updateBloodRequestDto,
+    };
+
+    return this.bloodRequestsRepository.save(updatedRequest);
   }
 
   async getBloodRequests(userId: string, options?: ICoordinate) {
@@ -126,7 +155,6 @@ export class BloodRequestsService {
         patientGender: true,
         patientAge: true,
         bloodGroup: true,
-        // donationDate: true,
         contactNumber: true,
         address: true,
         createdAt: true,
