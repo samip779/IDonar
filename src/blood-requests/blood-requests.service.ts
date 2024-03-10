@@ -203,6 +203,11 @@ export class BloodRequestsService {
       };
     });
 
+    await this.bloodRequestsRepository.save({
+      id: donation.bloodRequestId,
+      status: BloodRequestStatus.COMPLETED,
+    });
+
     await this.acceptedBloodRequestRepository.save(deletedDonations);
 
     return {
