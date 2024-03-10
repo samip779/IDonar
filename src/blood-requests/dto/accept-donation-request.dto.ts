@@ -4,11 +4,13 @@ import {
   IsDateString,
   IsEnum,
   IsNumber,
+  IsOptional,
   IsPhoneNumber,
   IsString,
   IsUUID,
   Min,
 } from 'class-validator';
+import { AcceptBloodRequestStatus, GetUserDonationsQueryEnum } from '../enums';
 
 export class AcceptBloodDonationRequestDto {
   @ApiProperty({ example: 'b0b54d87-2e45-442b-ab52-0ee89b3f301d' })
@@ -35,4 +37,15 @@ export class AcceptBloodDonationRequestDto {
   // @ApiProperty({ example: 'Nobel Hopital, KanchanBari, Biratnagar' })
   // @IsString()
   // address: string;
+}
+
+export class GetUserDonationsQueryDto {
+  @ApiProperty({
+    required: false,
+    enum: GetUserDonationsQueryEnum,
+    example: GetUserDonationsQueryEnum.INVITED,
+  })
+  @IsEnum(GetUserDonationsQueryEnum)
+  @IsOptional()
+  status: GetUserDonationsQueryEnum;
 }

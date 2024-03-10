@@ -13,3 +13,10 @@ export enum BloodRequestStatus {
   COMPLETED = 'completed',
   CANCELLED = 'cancelled',
 }
+
+export enum GetUserDonationsQueryEnum {
+  CANCELLED = 'cancelled',
+  INVITED = 'invited',
+  PENDING = 'pending',
+  DONATED = 'donated',
+}

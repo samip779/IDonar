@@ -6,9 +6,17 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { BloodRequest } from './entities/blood-request.entity';
-import { Equal, MoreThan, MoreThanOrEqual, Not, Repository } from 'typeorm';
+import {
+  Equal,
+  FindOptionsWhere,
+  MoreThan,
+  MoreThanOrEqual,
+  Not,
+  Repository,
+} from 'typeorm';
 import {
   BloodRequestDto,
+  GetUsersRequestQueryDto,
   UpdateBloodRequestDto,
 } from './dto/blood-request.dto';
 import { User } from '../users/entities/user.entity';
@@ -19,8 +27,13 @@ import { AcceptedBloodRequest } from './entities/accepted-blood-request.entity';
 import { PushNotificationService } from '../push-notification/push-notification.service';
 import { NotificationService } from '../notification/notification.service';
 import { triggerAsyncId } from 'async_hooks';
-import { AcceptBloodRequestStatus, BloodRequestStatus } from './enums';
+import {
+  AcceptBloodRequestStatus,
+  BloodRequestStatus,
+  GetUserDonationsQueryEnum,
+} from './enums';
 import { ICoordinate, calculateDistance } from '../helpers/distance';
+import { GetUserDonationsQueryDto } from './dto/accept-donation-request.dto';
 
 @Injectable()
 export class BloodRequestsService {
@@ -104,7 +117,6 @@ export class BloodRequestsService {
         bloodGroup: true,
         priority: true,
         status: true,
-        // donationDate: true,
         contactNumber: true,
         address: true,
         createdAt: true,
@@ -115,8 +127,7 @@ export class BloodRequestsService {
       where: {
         status: BloodRequestStatus.PENDING,
         requester: Not(Equal(userId)),
-        // requesterId:
-        // donationDate: MoreThanOrEqual(new Date()),
+        acceptedBloodRequests: { acceptedAccountId: Not(Equal(userId)) },
       },
       order: {
         priority: 'ASC',
@@ -206,6 +217,21 @@ export class BloodRequestsService {
       throw new HttpException(
         'blood request not found with the provided id',
         HttpStatus.NOT_FOUND,
+      );
+
+    // check if the request is already accepted by the user
+    const isAccepted = await this.acceptedBloodRequestRepository.findOne({
+      where: {
+        bloodRequestId: bloodRequest.id,
+        acceptedAccountId: user.id,
+      },
+      select: ['id'],
+    });
+
+    if (isAccepted)
+      throw new HttpException(
+        'Blood Request already accepted',
+        HttpStatus.BAD_REQUEST,
       );
 
     // check if the blood group in payload is compatible with the victim's blood group
@@ -318,11 +344,56 @@ export class BloodRequestsService {
     };
   }
 
-  async getUsersDonations(userId: string) {
+  async getUsersDonations(userId: string, query: GetUserDonationsQueryDto) {
+    const { status } = query;
+
+    const filterCondition: FindOptionsWhere<AcceptedBloodRequest>[] = [];
+
+    if (status)
+      switch (status) {
+        case GetUserDonationsQueryEnum.PENDING: {
+          filterCondition.push({
+            status: AcceptBloodRequestStatus.SUBMITTED_BY_DONOR,
+          });
+          break;
+        }
+        case GetUserDonationsQueryEnum.INVITED: {
+          filterCondition.push({
+            status: AcceptBloodRequestStatus.INVITED_BY_REQUESTER,
+          });
+          break;
+        }
+        case GetUserDonationsQueryEnum.CANCELLED: {
+          filterCondition.push({
+            status: AcceptBloodRequestStatus.REQUEST_CANCELLED,
+          });
+          filterCondition.push({
+            status: AcceptBloodRequestStatus.CANCELLED_BY_DONOR,
+          });
+          filterCondition.push({
+            status: AcceptBloodRequestStatus.DONATED_BY_OTHER_DONOR,
+          });
+          filterCondition.push({
+            status: AcceptBloodRequestStatus.REJECTED_BY_REQUESTER,
+          });
+          break;
+        }
+        case GetUserDonationsQueryEnum.DONATED: {
+          filterCondition.push({
+            status: AcceptBloodRequestStatus.DONATED,
+          });
+          break;
+        }
+        default: {
+        }
+      }
+
+    const where: FindOptionsWhere<AcceptedBloodRequest>[] = filterCondition.map(
+      (cond) => ({ ...cond, acceptedAccountId: userId }),
+    );
+
     const donations = await this.acceptedBloodRequestRepository.find({
-      where: {
-        acceptedAccountId: userId,
-      },
+      where,
       relations: {
         bloodRequest: true,
         requester: true,
@@ -353,17 +424,23 @@ export class BloodRequestsService {
       order: {
         createdAt: 'DESC',
       },
+      withDeleted: status && status === GetUserDonationsQueryEnum.CANCELLED,
     });
 
     return donations;
   }
 
-  async getUsersBloodRequests(userId: string) {
+  async getUsersBloodRequests(userId: string, query: GetUsersRequestQueryDto) {
+    const { status } = query;
+
+    const filterConditions: FindOptionsWhere<BloodRequest> = {
+      ...(status ? { status } : {}),
+    };
+
     const usersBloodRequests = await this.bloodRequestsRepository.find({
       where: {
         requesterId: userId,
-        // donationDate: MoreThan(new Date()),
-        status: BloodRequestStatus.PENDING,
+        ...filterConditions,
       },
       select: [
         'id',
@@ -383,6 +460,8 @@ export class BloodRequestsService {
         // donationDate: 'ASC',
         priority: 'ASC',
       },
+      withDeleted:
+        query.status && query.status === BloodRequestStatus.CANCELLED,
     });
 
     return usersBloodRequests.map((request) => ({
@@ -494,9 +573,6 @@ export class BloodRequestsService {
 
     if (!acceptedBloodRequest)
       throw new BadRequestException('Blood Request Not Found');
-
-    // if (acceptedBloodRequest.bloodRequest.donationDate < new Date())
-    // throw new BadRequestException('Can not accept expired request');
 
     acceptedBloodRequest.status = AcceptBloodRequestStatus.INVITED_BY_REQUESTER;
 

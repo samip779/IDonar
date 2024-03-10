@@ -13,6 +13,7 @@ import {
 import {
   BloodRequestDto,
   GetBloodRequestsQueryDto,
+  GetUsersRequestQueryDto,
   UpdateBloodRequestDto,
 } from './dto/blood-request.dto';
 import { BloodRequestsService } from './blood-requests.service';
@@ -21,6 +22,9 @@ import { JwtAuthGuard } from '../guards/jwt.guard';
 import { GetUser } from '../decorators/get-user.decorator';
 import { User } from '../users/entities/user.entity';
 import { AcceptBloodRequestDto } from './dto/accept-blood-request.dto';
+import { GetUserDonationsQueryEnum } from './enums';
+import { query } from 'express';
+import { GetUserDonationsQueryDto } from './dto/accept-donation-request.dto';
 
 @ApiTags('blood request')
 @Controller('blood-requests')
@@ -43,15 +47,21 @@ export class BloodRequestsController {
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get('me')
-  getUsersBloodRequests(@GetUser('id') id: string) {
-    return this.bloodRequestsService.getUsersBloodRequests(id);
+  getUsersBloodRequests(
+    @GetUser('id') id: string,
+    @Query() query: GetUsersRequestQueryDto,
+  ) {
+    return this.bloodRequestsService.getUsersBloodRequests(id, query);
   }
 
   @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
   @Get('donations/me')
-  getUsersDonations(@GetUser('id') id: string) {
-    return this.bloodRequestsService.getUsersDonations(id);
+  getUsersDonations(
+    @GetUser('id') id: string,
+    @Query() query: GetUserDonationsQueryDto,
+  ) {
+    return this.bloodRequestsService.getUsersDonations(id, query);
   }
 
   @ApiBearerAuth()

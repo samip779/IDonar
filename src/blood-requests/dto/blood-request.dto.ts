@@ -12,6 +12,7 @@ import {
 import { BloodGroup, Gender } from '../../common/enums';
 import { ApiProperty, ApiPropertyOptional, PartialType } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
+import { BloodRequestStatus } from '../enums';
 // import { PartialType } from '@nestjs/mapped-types';
 
 export class BloodRequestDto {
@@ -82,4 +83,15 @@ export class GetBloodRequestsQueryDto {
   @IsOptional()
   @Type(() => Number)
   lon: number;
+}
+
+export class GetUsersRequestQueryDto {
+  @ApiProperty({
+    required: false,
+    enum: BloodRequestStatus,
+    example: BloodRequestStatus.PENDING,
+  })
+  @IsEnum(BloodRequestStatus)
+  @IsOptional()
+  status: BloodRequestStatus;
 }
