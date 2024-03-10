@@ -127,7 +127,7 @@ export class BloodRequestsService {
       where: {
         status: BloodRequestStatus.PENDING,
         requester: Not(Equal(userId)),
-        acceptedBloodRequests: { acceptedAccountId: Not(Equal(userId)) },
+        // acceptedBloodRequests: { acceptedAccountId: Not(Equal(userId)) },
       },
       order: {
         priority: 'ASC',
@@ -158,6 +158,8 @@ export class BloodRequestsService {
       };
     });
   }
+
+  async verifyDonationCompletion(userId: string) {}
 
   async getBloodRequest(id: string) {
     const bloodRequest = await this.bloodRequestsRepository.findOne({
