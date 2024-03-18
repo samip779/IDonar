@@ -55,6 +55,8 @@ export class UsersController {
     return this.usersService.resetPassword(resetPasswordDto);
   }
 
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
   @Patch('change-password')
   changePassword(
     @Body() changePasswordDto: ChangePasswordDto,
