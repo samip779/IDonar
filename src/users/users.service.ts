@@ -164,9 +164,7 @@ export class UsersService {
     if (!user)
       throw new HttpException('user not found', HttpStatus.BAD_REQUEST);
 
-    const oldPasswordHashed = await argon2.hash(oldPassword);
-
-    if (oldPasswordHashed !== user.password)
+    if (!(await argon2.verify(user.password, oldPassword)))
       throw new HttpException(
         'old password did not match',
         HttpStatus.BAD_REQUEST,
