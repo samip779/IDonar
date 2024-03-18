@@ -16,6 +16,7 @@ import {
   VerifyResetPasswordOtpDto,
 } from './dto/reset-password.dto';
 import * as argon2 from 'argon2';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @Injectable()
 export class UsersService {
@@ -144,6 +145,40 @@ export class UsersService {
 
     return {
       success: true,
+      message: 'password changed successfully',
+    };
+  }
+
+  async changePassword(
+    userId: string,
+    { oldPassword, newPassword }: ChangePasswordDto,
+  ) {
+    const user = await this.usersRepository.findOne({
+      where: {
+        id: userId,
+      },
+
+      select: ['id', 'password'],
+    });
+
+    if (!user)
+      throw new HttpException('user not found', HttpStatus.BAD_REQUEST);
+
+    const oldPasswordHashed = await argon2.hash(oldPassword);
+
+    if (oldPasswordHashed !== user.password)
+      throw new HttpException(
+        'old password did not match',
+        HttpStatus.BAD_REQUEST,
+      );
+
+    await this.usersRepository.save({
+      id: user.id,
+      password: await argon2.hash(newPassword),
+    });
+
+    return {
+      sucess: true,
       message: 'password changed successfully',
     };
   }

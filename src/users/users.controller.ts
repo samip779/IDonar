@@ -8,6 +8,7 @@ import {
   ResetPasswordOTPDto,
   VerifyResetPasswordOtpDto,
 } from './dto/reset-password.dto';
+import { ChangePasswordDto } from './dto/change-password.dto';
 
 @ApiTags('users')
 @Controller('users')
@@ -52,5 +53,13 @@ export class UsersController {
   @Patch('reset-password')
   resetPassword(@Body() resetPasswordDto: ResetPasswordDto) {
     return this.usersService.resetPassword(resetPasswordDto);
+  }
+
+  @Patch('change-password')
+  changePassword(
+    @Body() changePasswordDto: ChangePasswordDto,
+    @GetUser('id') userId: string,
+  ) {
+    return this.usersService.changePassword(userId, changePasswordDto);
   }
 }
